@@ -30,14 +30,18 @@ class OAuthValidator(RequestValidator):
         """
         auth = request.headers.get('HTTP_AUTHORIZATION', None)
 
-        if not auth:
-            return False
+        if auth:
+            auth_type, auth_string = auth.split(' ')
+            encoding = request.encoding or 'utf-8'
 
-        auth_type, auth_string = auth.split(' ')
-        encoding = request.encoding or 'utf-8'
+            auth_string_decoded = base64.b64decode(auth_string).decode(encoding)
+            client_id, client_secret = auth_string_decoded.split(':', 1)
+        else:
+            client_id = request.body.get('client_id', None)
+            client_secret = request.body.get('client_secret', None)
 
-        auth_string_decoded = base64.b64decode(auth_string).decode(encoding)
-        client_id, client_secret = auth_string_decoded.split(':', 1)
+            if not client_id or not client_secret:
+                return False
 
         try:
             request.client = Application.objects.get(client_id=client_id, client_secret=client_secret)
