@@ -51,6 +51,13 @@ class OAuthValidator(RequestValidator):
         """
         return oauth_api_settings.SCOPES
 
+    def get_original_scopes(self, refresh_token, request, *args, **kwargs):
+        """
+        Get the list of scopes associated with the refresh token.
+        """
+        rt = RefreshToken.objects.get(token=refresh_token)
+        return rt.access_token.scope
+
     def save_bearer_token(self, token, request, *args, **kwargs):
         """
         Persist the Bearer token.
@@ -78,6 +85,8 @@ class OAuthValidator(RequestValidator):
                 access_token=access_token)
             refresh_token.save()
 
+        return request.client.default_redirect_uri
+
     def validate_client_id(self, client_id, request, *args, **kwargs):
         """
         Check that and Application exists with given client_id.
@@ -94,6 +103,17 @@ class OAuthValidator(RequestValidator):
         """
         assert(grant_type in GRANT_TYPE_MAPPING)
         return request.client.authorization_grant_type in GRANT_TYPE_MAPPING[grant_type]
+
+    def validate_refresh_token(self, refresh_token, client, request, *args, **kwargs):
+        """
+        Ensure the Bearer token is valid and authorized access to scopes.
+        """
+        try:
+            rt = RefreshToken.objects.get(token=refresh_token)
+            request.user = rt.user
+            return rt.application == client
+        except RefreshToken.DoesNotExist:
+            return False
 
     def validate_scopes(self, client_id, scopes, client, request, *args, **kwargs):
         """

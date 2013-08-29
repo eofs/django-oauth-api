@@ -55,6 +55,15 @@ class AbstractApplication(models.Model):
     class Meta:
         abstract = True
 
+    @property
+    def default_redirect_uri(self):
+        """
+        Returns the default redirect uri by extracting first in the list of uris.
+        """
+        if self.redirect_uris:
+            return self.redirect_uris.split().pop(0)
+        return None
+
     def __unicode__(self):
         return self.name
 
