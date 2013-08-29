@@ -18,4 +18,7 @@ class AccessTokenAdmin(admin.ModelAdmin):
 admin.site.register(AccessToken, AccessTokenAdmin)
 
 
-admin.site.register(RefreshToken)
+class RefreshTokenAdmin(admin.ModelAdmin):
+    list_display = ('token', 'application', 'user', 'created', 'updated')
+
+admin.site.register(RefreshToken, RefreshTokenAdmin)
