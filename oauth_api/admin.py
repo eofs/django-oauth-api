@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from oauth_api.models import AccessToken, RefreshToken, get_application_model
+from oauth_api.models import AccessToken, AuthorizationCode, RefreshToken, get_application_model
 
 
 Application = get_application_model()
@@ -13,9 +13,15 @@ admin.site.register(Application, ApplicationAdmin)
 
 
 class AccessTokenAdmin(admin.ModelAdmin):
-    list_display = ('token', 'expires', 'application', 'user')
+    list_display = ('token', 'expires', 'application', 'user', 'created', 'updated')
 
 admin.site.register(AccessToken, AccessTokenAdmin)
+
+
+class AuthorizationCodeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'application', 'expires', 'created', 'updated')
+
+admin.site.register(AuthorizationCode, AuthorizationCodeAdmin)
 
 
 class RefreshTokenAdmin(admin.ModelAdmin):

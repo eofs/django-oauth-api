@@ -2,6 +2,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models import get_model
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 
@@ -64,6 +65,12 @@ class AbstractApplication(models.Model):
             return self.redirect_uris.split().pop(0)
         return None
 
+    def redirect_uri_allowed(self, redirect_uri):
+        """
+        Check if redirect uri is valid for current application.
+        """
+        return redirect_uri in self.redirect_uris.split()
+
     def __unicode__(self):
         return self.name
 
@@ -84,6 +91,53 @@ class AccessToken(models.Model):
     application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL)
     expires = models.DateTimeField()
     scope = models.TextField(blank=True)
+
+    def allow_scopes(self, scopes):
+        """
+        Check if token allows the provided scopes.
+        """
+        if not scopes:
+            return True
+
+        provided_scopes = set(self.scope.split())
+        resource_scopes = set(scopes)
+
+        return resource_scopes.issubset(provided_scopes)
+
+    @property
+    def is_expired(self):
+        """
+        Check if token has been expired.
+        """
+        return timezone.now() >= self.expires
+
+    def is_valid(self, scopes=None):
+        """
+        Check if access token is valid.
+        """
+        return not self.is_expired and self.allow_scopes(scopes)
+
+
+class AuthorizationCode(models.Model):
+    created = models.DateTimeField('created', auto_now_add=True)
+    updated = models.DateTimeField('updated', auto_now=True)
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    code = models.CharField(max_length=255)
+    application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL)
+    expires = models.DateTimeField()
+    redirect_uri = models.CharField(max_length=255)
+    scope = models.TextField(blank=True)
+
+    @property
+    def is_expired(self):
+        """
+        Check if code has been expired.
+        """
+        return timezone.now() >= self.expires
+
+    def redirect_uri_allowed(self, redirect_uri):
+        return redirect_uri == self.redirect_uri
 
 
 class RefreshToken(models.Model):
