@@ -10,7 +10,10 @@ DEFAULTS = {
     'APPLICATION_MODEL': 'oauth_api.Application',
     'CLIENT_ID_GENERATOR': 'oauth_api.generators.ClientIdGenerator',
     'CLIENT_SECRET_GENERATOR': 'oauth_api.generators.ClientSecretGenerator',
-    'SCOPES': ['read', 'write'],
+    'SCOPES': {
+        'read': 'Read access',
+        'write': 'Write access',
+    },
 }
 
 

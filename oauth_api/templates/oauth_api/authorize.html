@@ -1,0 +1,41 @@
+{% extends "oauth_api/base.html" %}
+
+{% load i18n %}
+
+
+{% block content%}
+<div class="row">
+    <div class="col-md-12">
+        <h1>{% trans "An application would like to connect to your account" %}</h1>
+    </div>
+    <div class="col-md-12">
+        <p>
+            {% blocktrans with name=application.name %}
+            The app <strong>{{ name }}</strong> would like have following permissions on your data:
+            {% endblocktrans %}
+        </p>
+    </div>
+    <div class="col-md-12">
+        <ul>
+            {% for scope in scopes_descriptions %}
+            <li>{{ scope }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-12">
+        <form id="authorization" method="post">
+            {% csrf_token %}
+
+            {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+
+            {{ form.errors }}
+            {{ form.non_field_errors }}
+
+            <input type="submit" class="btn btn-large" value="{% trans 'Cancel' %}">
+            <input type="submit" class="btn btn-large btn-primary" name="allow" value="{% trans 'Authorize' %}">
+        </form>
+    </div>
+</div>
+{% endblock content%}

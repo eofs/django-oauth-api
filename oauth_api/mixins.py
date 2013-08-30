@@ -1,5 +1,6 @@
 from oauthlib.oauth2 import Server
 
+from oauth_api.exceptions import FatalClientError
 from oauth_api.validators import OAuthValidator
 from oauth_api.handlers import OAuthHandler
 from oauth_api.settings import oauth_api_settings
@@ -13,6 +14,25 @@ class OAuthViewMixin(object):
     oauth_handler_class = None
     oauth_server_class = None
     oauth_validator_class = None
+
+    def error_response(self, error, **kwargs):
+        """
+        Return an error to be displayed.
+        """
+        oauthlib_error = error.oauthlib_error
+        error_response = {
+            'error': oauthlib_error,
+            'url': '{0}?{1}'.format(oauthlib_error.redirect_uri, oauthlib_error.urlencoded)
+        }
+        error_response.update(kwargs)
+
+        if isinstance(error, FatalClientError):
+            redirect = False
+        else:
+            redirect = True
+
+        return redirect, error_response
+
 
     def get_server_class(self):
         """
@@ -57,6 +77,15 @@ class OAuthViewMixin(object):
             self._oauth_handler = handler_class(server)
         return self._oauth_handler
 
+    def create_authorization_response(self, request, scopes, credentials, allow):
+        scopes = scopes.split(' ') if scopes else []
+        handler = self.get_request_handler()
+        return handler.create_authorization_response(request, scopes, credentials, allow)
+
     def create_token_response(self, request):
         handler = self.get_request_handler()
         return handler.create_token_response(request)
+
+    def validate_authorization_request(self, request):
+        handler = self.get_request_handler()
+        return handler.validate_authorization_request(request)
