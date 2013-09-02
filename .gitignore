@@ -1,6 +1,12 @@
+# packages
 *.egg
 *.egg-info
+
+# Python / Django
 *.log
 *.pot
 *.pyc
 local_settings.py
+
+# Unit tests
+.tox
