@@ -26,6 +26,9 @@ class OAuthHandler(object):
             del headers['wsgi.input']
         if 'wsgi.errors' in headers:
             del headers['wsgi.errors']
+        # OAuthLib looks for 'Authorization'
+        if 'HTTP_AUTHORIZATION' in headers:
+            headers['Authorization'] = headers['HTTP_AUTHORIZATION']
         return uri, method, data, headers
 
     def create_authorization_response(self, request, scopes, credentials, allow):
@@ -59,3 +62,12 @@ class OAuthHandler(object):
             raise FatalClientError(error=error)
         except oauth2.OAuth2Error as error:
             raise OAuthAPIError(error=error)
+
+    def verify_request(self, request, scopes):
+        """
+        Wrapper method to call `verify_request` in OAuthLib
+        """
+        uri, method, data, headers = self.extract_params(request)
+        body = urlencode(data)
+        valid, r = self.server.verify_request(uri, method, body, headers, scopes=scopes)
+        return valid, r

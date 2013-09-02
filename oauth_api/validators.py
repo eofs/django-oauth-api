@@ -146,6 +146,8 @@ class OAuthValidator(RequestValidator):
                 request.user = access_token.user
                 request.scopes = scopes
 
+                # Required when autenticating using OAuth2Authentication
+                request.access_token = access_token
                 return True
             return False
         except AccessToken.DoesNotExist:
