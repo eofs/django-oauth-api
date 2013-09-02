@@ -79,7 +79,7 @@ class OAuthValidator(RequestValidator):
         """
         Get the default scopes for the client.
         """
-        return oauth_api_settings.SCOPES.keys()
+        return list(oauth_api_settings.SCOPES.keys())
 
     def get_original_scopes(self, refresh_token, request, *args, **kwargs):
         """
