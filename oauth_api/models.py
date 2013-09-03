@@ -56,6 +56,17 @@ class AbstractApplication(models.Model):
     class Meta:
         abstract = True
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if not self.redirect_uris and self.authorization_grant_type \
+            in (
+                AbstractApplication.GRANT_ALLINONE,
+                AbstractApplication.GRANT_AUTHORIZATION_CODE,
+                AbstractApplication.GRANT_IMPLICIT,
+            ):
+            error = _('Redirect uris required when {0} grant_type used')
+            raise ValidationError(error.format(self.authorization_grant_type))
+
     @property
     def default_redirect_uri(self):
         """
