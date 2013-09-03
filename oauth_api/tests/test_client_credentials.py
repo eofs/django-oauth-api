@@ -8,6 +8,7 @@ from rest_framework.test import APITestCase, APIRequestFactory
 
 from oauth_api.models import get_application_model
 from oauth_api.settings import oauth_api_settings
+from oauth_api.tests.views import RESPONSE_DATA
 
 
 Application = get_application_model()
@@ -75,7 +76,7 @@ class TestClientCredentials(BaseTest):
         self.assertTrue(self.scopes_valid(response.data['scope'], oauth_api_settings.SCOPES))
         self.assertEqual(response.data['expires_in'], oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
 
-    def test_access(self):
+    def test_resource_access(self):
         """
         Request an access toke and try to fetch data using it
         """
@@ -99,9 +100,9 @@ class TestClientCredentials(BaseTest):
 
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, {'hello': 'world!'})
+        self.assertEqual(response.data, RESPONSE_DATA)
 
-    def test_denied_access(self):
+    def test_denied_resource_access(self):
         """
         Request an access toke and try to fetch data using it
         """
