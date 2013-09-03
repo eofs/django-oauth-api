@@ -34,6 +34,14 @@ class OAuthViewMixin(object):
         return redirect, error_response
 
 
+    def get_server(self):
+        """
+        Return an instance of `oauth_server_class` initialized with a `oauth_validator_class`
+        """
+        server_class = self.get_server_class()
+        validator_class = self.get_validator_class()
+        return server_class(validator_class(), token_expires_in=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
+
     def get_server_class(self):
         """
         Return the class to use for the endpoint.
@@ -70,10 +78,7 @@ class OAuthViewMixin(object):
         """
         if not hasattr(self, '_oauth_handler'):
             handler_class = self.get_handler_class()
-            server_class = self.get_server_class()
-            validator_class = self.get_validator_class()
-            validator = validator_class()
-            server = server_class(validator, token_expires_in=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
+            server = self.get_server()
             self._oauth_handler = handler_class(server)
         return self._oauth_handler
 
