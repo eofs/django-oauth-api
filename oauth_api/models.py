@@ -64,7 +64,7 @@ class AbstractApplication(models.Model):
                 AbstractApplication.GRANT_AUTHORIZATION_CODE,
                 AbstractApplication.GRANT_IMPLICIT,
             ):
-            error = _('Redirect uris required when {0} grant_type used')
+            error = _('Redirect URIs required when {0} grant_type used')
             raise ValidationError(error.format(self.authorization_grant_type))
 
     @property
