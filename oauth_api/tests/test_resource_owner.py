@@ -111,7 +111,7 @@ class TestResourceOwnerTokenView(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['token_type'], 'Bearer')
-        self.assertEqual(True, self.scopes_valid(response.data['scope'], oauth_api_settings.SCOPES))
+        self.assertTrue(self.scopes_valid(response.data['scope'], oauth_api_settings.SCOPES))
         self.assertEqual(response.data['expires_in'], oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
 
     def test_valid_scope_request(self):
@@ -131,7 +131,7 @@ class TestResourceOwnerTokenView(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['token_type'], 'Bearer')
-        self.assertEqual(True, self.scopes_valid(response.data['scope'], oauth_api_settings.SCOPES))
+        self.assertTrue(self.scopes_valid(response.data['scope'], oauth_api_settings.SCOPES))
         self.assertEqual(response.data['expires_in'], oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
 
     def test_invalid_scope_request(self):
