@@ -8,6 +8,7 @@ from rest_framework.test import APITestCase
 
 from oauth_api.models import get_application_model
 from oauth_api.settings import oauth_api_settings
+from oauth_api.tests.views import RESPONSE_DATA
 
 Application = get_application_model()
 User = get_user_model()
@@ -150,3 +151,57 @@ class TestResourceOwnerTokenView(BaseTest):
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_resouce_access(self):
+        """
+        Request an access token and try to fetch data using it
+        """
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+        url = reverse('oauth_api:token')
+        data = {
+            'grant_type': 'password',
+            'username': 'test_user',
+            'password': '1234',
+        }
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        access_token = response.data['access_token']
+
+        # Update Basic Auth information
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer %s' % access_token)
+
+        url = reverse('resource-view')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, RESPONSE_DATA)
+
+    def test_denied_resource_access(self):
+        """
+        Request an access token and try to fetch data using it
+        """
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+        url = reverse('oauth_api:token')
+        data = {
+            'grant_type': 'password',
+            'username': 'test_user',
+            'password': '1234',
+            'scope': 'read',
+        }
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        access_token = response.data['access_token']
+
+        # Update Basic Auth information
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer %s' % access_token)
+
+        url = reverse('resource-view')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
