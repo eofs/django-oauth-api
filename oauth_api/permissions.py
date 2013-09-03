@@ -1,6 +1,7 @@
-from django.core.exceptions import ImproperlyConfigured
-
 from rest_framework.permissions import BasePermission
+
+
+SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
 
 
 class OAuth2ScopePermission(BasePermission):
@@ -9,20 +10,36 @@ class OAuth2ScopePermission(BasePermission):
     """
     def has_permission(self, request, view):
         token = request.auth
+        read_only = request.method in SAFE_METHODS
 
         if not token:
             return False
 
         if hasattr(token, 'scope'):
-            required_scopes = self.get_scopes(request, view)
+            scopes = self.get_scopes(request, view)
+            if scopes['required'] is not None:
+                is_valid = token.is_valid(scopes['required'])
+                if is_valid == False:
+                    return False
+            else:
+                # View did not define any required scopes
+                is_valid = False
 
-            return token.is_valid(required_scopes)
+            # Check for method specific scopes
+            if read_only:
+                if scopes['read'] is not None:
+                    return token.is_valid(scopes['read'])
+            else:
+                if scopes['write'] is not None:
+                    return token.is_valid(scopes['write'])
 
-        assert False, ('OAuth2ScopePermission requires the `OAuth2Authentication`'
-                       'authentication class to be used.')
+            return is_valid
+
+        return False
 
     def get_scopes(self, request, view):
-        try:
-            return getattr(view, 'required_scopes')
-        except AttributeError:
-            raise ImproperlyConfigured('required_scopes attribute is not defined for this view.')
+        return {
+            'required': getattr(view, 'required_scopes', None),
+            'read': getattr(view, 'read_scopes', None),
+            'write': getattr(view, 'write_scopes', None),
+        }
