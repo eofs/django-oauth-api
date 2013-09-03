@@ -47,7 +47,7 @@ class TestResourceOwnerTokenView(BaseTest):
             'username': 'test_user',
             'password': '1234',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_auth_as_data(self):
@@ -62,7 +62,7 @@ class TestResourceOwnerTokenView(BaseTest):
             'client_id': self.application.client_id,
             'client_secret': self.application.client_secret,
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_invalid_auth(self):
@@ -77,7 +77,7 @@ class TestResourceOwnerTokenView(BaseTest):
             'client_id': self.application.client_id,
             'client_secret': self.application.client_secret,
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_invalid_client(self):
@@ -92,7 +92,7 @@ class TestResourceOwnerTokenView(BaseTest):
             'client_id': 'invalid',
             'client_secret': 'invalid',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_valid_default_scope_request(self):
@@ -107,7 +107,7 @@ class TestResourceOwnerTokenView(BaseTest):
             'username': 'test_user',
             'password': '1234',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['token_type'], 'Bearer')
@@ -127,7 +127,7 @@ class TestResourceOwnerTokenView(BaseTest):
             'password': '1234',
             'scope': 'read',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['token_type'], 'Bearer')
@@ -147,6 +147,6 @@ class TestResourceOwnerTokenView(BaseTest):
             'password': '1234',
             'scope': 'BANANA',
         }
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
