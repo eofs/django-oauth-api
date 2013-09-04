@@ -30,6 +30,9 @@ class BaseTest(APITestCase):
 
 class TestAuthorizationCode(BaseTest):
     def test_invalid_client(self):
+        """
+        Test for invalid client information
+        """
         self.client.login(username='test_user', password='1234')
 
         query_string = {
@@ -46,6 +49,9 @@ class TestAuthorizationCode(BaseTest):
         self.assertTrue(isinstance(error, InvalidClientIdError))
 
     def test_missing_client(self):
+        """
+        Test for missing client information
+        """
         self.client.login(username='test_user', password='1234')
 
         query_string = {
@@ -61,6 +67,9 @@ class TestAuthorizationCode(BaseTest):
         self.assertTrue(isinstance(error, MissingClientIdError))
 
     def test_valid_client(self):
+        """
+        Test for valid client information
+        """
         self.client.login(username='test_user', password='1234')
 
         query_string = {
@@ -83,6 +92,9 @@ class TestAuthorizationCode(BaseTest):
         self.assertEqual(form['client_id'].value(), self.application.client_id)
 
     def test_invalid_response_type(self):
+        """
+        Test for invalid response_type
+        """
         self.client.login(username='test_user', password='1234')
 
         query_string = {
@@ -94,6 +106,9 @@ class TestAuthorizationCode(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_missing_response_type(self):
+        """
+        Test for missing response_type
+        """
         self.client.login(username='test_user', password='1234')
 
         query_string = {
@@ -104,6 +119,9 @@ class TestAuthorizationCode(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_forbidden_redirect_uri(self):
+        """
+        Test for forbidden redirect_uri (Not defined in list of allowed URIs)
+        """
         self.client.login(username='test_user', password='1234')
 
         query_string = {
@@ -121,6 +139,9 @@ class TestAuthorizationCode(BaseTest):
         self.assertTrue(isinstance(error, MismatchingRedirectURIError))
 
     def test_invalid_redirect_uri(self):
+        """
+        Test for malformed redirect_uri value
+        """
         self.client.login(username='test_user', password='1234')
 
         query_string = {
