@@ -19,8 +19,11 @@ class AuthorizationView(OAuthViewMixin, FormView):
     template_name = 'oauth_api/authorize.html'
     form_class = AuthorizationForm
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         self.oauth2_data = {}
+        return super(AuthorizationView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
         try:
             scopes, credentials = self.validate_authorization_request(self.request)
             self.oauth2_data['scopes'] = scopes
