@@ -33,7 +33,6 @@ class OAuthViewMixin(object):
 
         return redirect, error_response
 
-
     def get_server(self):
         """
         Return an instance of `oauth_server_class` initialized with a `oauth_validator_class`
