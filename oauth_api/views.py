@@ -28,9 +28,10 @@ class AuthorizationView(OAuthViewMixin, FormView):
             scopes, credentials = self.validate_authorization_request(self.request)
             self.oauth2_data['scopes'] = scopes
             self.oauth2_data.update(credentials)
+            return super(AuthorizationView, self).get(request, *args, **kwargs)
         except (FatalClientError, OAuthAPIError) as error:
             self.oauth2_data['error'] = error
-        return super(AuthorizationView, self).get(request, *args, **kwargs)
+            return self.render_to_response(self.get_context_data(), status=400)
 
     def get_initial(self):
         return {
