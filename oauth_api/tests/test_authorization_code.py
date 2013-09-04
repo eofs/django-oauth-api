@@ -104,6 +104,7 @@ class TestAuthorizationCode(BaseTest):
         response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn('error=unauthorized_client', response['Location'])
 
     def test_missing_response_type(self):
         """
@@ -117,6 +118,7 @@ class TestAuthorizationCode(BaseTest):
         response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn('error=invalid_request', response['Location'])
 
     def test_default_redirect_uri(self):
         """
