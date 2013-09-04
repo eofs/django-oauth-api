@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 
+from oauthlib.oauth2 import (InvalidClientIdError, MissingClientIdError)
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -37,6 +39,26 @@ class TestAuthorizationCode(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        self.assertIn('error', response.context)
+        error = response.context['error']
+
+        self.assertTrue(isinstance(error, InvalidClientIdError))
+
+    def test_missing_client(self):
+        self.client.login(username='test_user', password='1234')
+
+        query_string = {
+            'response_type': 'code',
+        }
+        response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertIn('error', response.context)
+        error = response.context['error']
+
+        self.assertTrue(isinstance(error, MissingClientIdError))
+
     def test_valid_client(self):
         self.client.login(username='test_user', password='1234')
 
@@ -58,3 +80,24 @@ class TestAuthorizationCode(BaseTest):
         self.assertEqual(form['state'].value(), 'random_state_string')
         self.assertEqual(form['scopes'].value(), 'read write')
         self.assertEqual(form['client_id'].value(), self.application.client_id)
+
+    def test_invalid_response_type(self):
+        self.client.login(username='test_user', password='1234')
+
+        query_string = {
+            'client_id': self.application.client_id,
+            'response_type': 'invalid',
+        }
+        response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+    def test_missing_response_type(self):
+        self.client.login(username='test_user', password='1234')
+
+        query_string = {
+            'client_id': self.application.client_id,
+        }
+        response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
