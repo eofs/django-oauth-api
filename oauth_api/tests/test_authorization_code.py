@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 
-from oauthlib.oauth2 import (InvalidClientIdError, MissingClientIdError)
+from oauthlib.oauth2 import (InvalidClientIdError, MissingClientIdError,
+                             InvalidRedirectURIError, MismatchingRedirectURIError)
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -101,3 +102,37 @@ class TestAuthorizationCode(BaseTest):
         response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+    def test_forbidden_redirect_uri(self):
+        self.client.login(username='test_user', password='1234')
+
+        query_string = {
+            'client_id': self.application.client_id,
+            'response_type': 'code',
+            'redirect_uri': 'http://invalid.local.host',
+        }
+        response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertIn('error', response.context)
+        error = response.context['error']
+
+        self.assertTrue(isinstance(error, MismatchingRedirectURIError))
+
+    def test_invalid_redirect_uri(self):
+        self.client.login(username='test_user', password='1234')
+
+        query_string = {
+            'client_id': self.application.client_id,
+            'response_type': 'code',
+            'redirect_uri': 'invalid',
+        }
+        response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.assertIn('error', response.context)
+        error = response.context['error']
+
+        self.assertTrue(isinstance(error, InvalidRedirectURIError))
