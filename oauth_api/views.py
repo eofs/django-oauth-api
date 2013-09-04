@@ -1,5 +1,6 @@
 import json
 
+from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 
 from rest_framework.views import APIView
@@ -23,15 +24,27 @@ class AuthorizationView(OAuthViewMixin, FormView):
         self.oauth2_data = {}
         return super(AuthorizationView, self).dispatch(request, *args, **kwargs)
 
+    def error_response(self, error, **kwargs):
+        """
+        Redirect user-agent back to origin. Origin is determined from detected client.
+        """
+        oauthlib_error = error.oauthlib_error
+        url = '{0}?{1}'.format(oauthlib_error.redirect_uri, oauthlib_error.urlencoded)
+        return HttpResponseRedirect(url)
+
     def get(self, request, *args, **kwargs):
         try:
             scopes, credentials = self.validate_authorization_request(self.request)
             self.oauth2_data['scopes'] = scopes
             self.oauth2_data.update(credentials)
             return super(AuthorizationView, self).get(request, *args, **kwargs)
-        except (FatalClientError, OAuthAPIError) as error:
+        except FatalClientError as error:
+            # Fatal error, could not determine client
             self.oauth2_data['error'] = error
             return self.render_to_response(self.get_context_data(), status=400)
+        except OAuthAPIError as error:
+            # Redirect user-agent back to origin
+            return self.error_response(error)
 
     def get_initial(self):
         return {
@@ -50,7 +63,7 @@ class AuthorizationView(OAuthViewMixin, FormView):
             context['scopes_descriptions'] = [oauth_api_settings.SCOPES[scope] for scope in scopes]
             context.update(self.oauth2_data)
         else:
-            context['error'] = self.oauth2_data['error'].oauthlib_error.error
+            context['error'] = self.oauth2_data['error'].oauthlib_error
         return context
 
     def form_valid(self, form):
