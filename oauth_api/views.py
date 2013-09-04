@@ -67,21 +67,23 @@ class AuthorizationView(OAuthViewMixin, FormView):
         return context
 
     def form_valid(self, form):
-        credentials = {
-            'client_id': form.cleaned_data.get('client_id', None),
-            'redirect_uri': form.cleaned_data.get('redirect_uri', None),
-            'response_type': form.cleaned_data.get('response_type', None),
-            'state': form.cleaned_data.get('state', None),
-        }
+        try:
+            credentials = {
+                'client_id': form.cleaned_data.get('client_id', None),
+                'redirect_uri': form.cleaned_data.get('redirect_uri', None),
+                'response_type': form.cleaned_data.get('response_type', None),
+                'state': form.cleaned_data.get('state', None),
+            }
 
-        scopes = form.cleaned_data.get('scopes', None)
-        allow = form.cleaned_data.get('allow', False)
+            scopes = form.cleaned_data.get('scopes', None)
+            allow = form.cleaned_data.get('allow', False)
 
-        uri, headers, body, status = self.create_authorization_response(
-            request=self.request, scopes=scopes, credentials=credentials, allow=allow)
-        self.success_url = uri
-        return super(AuthorizationView, self).form_valid(form)
-
+            uri, headers, body, status = self.create_authorization_response(
+                request=self.request, scopes=scopes, credentials=credentials, allow=allow)
+            self.success_url = uri
+            return super(AuthorizationView, self).form_valid(form)
+        except OAuthAPIError as error:
+            return self.error_response(error)
 
 class TokenView(OAuthViewMixin, APIView):
     authentication_classes = ()
