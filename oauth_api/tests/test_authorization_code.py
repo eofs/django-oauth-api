@@ -118,6 +118,25 @@ class TestAuthorizationCode(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
+    def test_default_redirect_uri(self):
+        """
+        Test for default redirect uri
+        """
+        self.client.login(username='test_user', password='1234')
+
+        query_string = {
+            'client_id': self.application.client_id,
+            'response_type': 'code',
+        }
+        response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertIn('form', response.context)
+        form = response.context['form']
+
+        self.assertEqual(form['redirect_uri'].value(), 'http://localhost')
+
     def test_forbidden_redirect_uri(self):
         """
         Test for forbidden redirect_uri (Not defined in list of allowed URIs)
@@ -157,3 +176,25 @@ class TestAuthorizationCode(BaseTest):
         error = response.context['error']
 
         self.assertTrue(isinstance(error, InvalidRedirectURIError))
+
+    def test_authorization_code_post_allow(self):
+        """
+        Test for user-agent authorized the client
+        """
+        self.client.login(username='test_user', password='1234')
+
+        form_data = {
+            'client_id': self.application.client_id,
+            'state': 'random_state_string',
+            'scopes': 'read write',
+            'redirect_uri': 'http://localhost',
+            'response_type': 'code',
+            'allow': True,
+        }
+
+        response = self.client.post(reverse('oauth_api:authorize'), data=form_data)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn('http://localhost?', response['Location'])
+        self.assertIn('state=random_state_string', response['Location'])
+        self.assertIn('code=', response['Location'])
