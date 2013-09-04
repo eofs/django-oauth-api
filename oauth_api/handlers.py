@@ -32,15 +32,20 @@ class OAuthHandler(object):
         return uri, method, data, headers
 
     def create_authorization_response(self, request, scopes, credentials, allow):
-        if not allow:
-            raise oauth2.AccessDeniedError()
+        try:
+            if not allow:
+                raise oauth2.AccessDeniedError()
 
-        credentials['user'] = request.user
+            credentials['user'] = request.user
 
-        uri, headers, body, status = self.server.create_authorization_response(
-            uri=credentials['redirect_uri'], scopes=scopes, credentials=credentials)
+            uri, headers, body, status = self.server.create_authorization_response(
+                uri=credentials['redirect_uri'], scopes=scopes, credentials=credentials)
 
-        return uri, headers, body, status
+            return uri, headers, body, status
+        except oauth2.FatalClientError as error:
+            raise FatalClientError(error=error, redirect_uri=credentials['redirect_uri'])
+        except oauth2.OAuth2Error as error:
+            raise OAuthAPIError(error=error, redirect_uri=credentials['redirect_uri'])
 
     def create_token_response(self, request):
         uri, method, data, headers = self.extract_params(request)
