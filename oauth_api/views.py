@@ -1,6 +1,5 @@
 import json
 
-from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 
 from rest_framework.views import APIView
@@ -10,7 +9,7 @@ from rest_framework.response import Response
 from oauth_api.forms import AuthorizationForm
 from oauth_api.mixins import OAuthViewMixin
 from oauth_api.models import get_application_model
-from oauth_api.exceptions import OAuthAPIError
+from oauth_api.exceptions import FatalClientError, OAuthAPIError
 from oauth_api.settings import oauth_api_settings
 
 Application = get_application_model()
@@ -20,29 +19,13 @@ class AuthorizationView(OAuthViewMixin, FormView):
     template_name = 'oauth_api/authorize.html'
     form_class = AuthorizationForm
 
-    oauth2_data = {}
-
-    def error_response(self, error, **kwargs):
-        redirect, error_response = super(AuthorizationView, self).error_response(error, **kwargs)
-
-        if redirect:
-            return HttpResponseRedirect(error_response['url'])
-
-        status = error_response['error'].status_code
-        return self.render_to_response(error_response, status=status)
-
-    def get2(self, request, *args, **kwargs):
-        try:
-            scopes, credentials = self.validate_authorization_request(request)
-        except OAuthAPIError as error:
-            return self.error_response(error)
-
     def get(self, request, *args, **kwargs):
+        self.oauth2_data = {}
         try:
             scopes, credentials = self.validate_authorization_request(self.request)
             self.oauth2_data['scopes'] = scopes
             self.oauth2_data.update(credentials)
-        except OAuthAPIError as error:
+        except (FatalClientError, OAuthAPIError) as error:
             self.oauth2_data['error'] = error
         return super(AuthorizationView, self).get(request, *args, **kwargs)
 
@@ -57,10 +40,13 @@ class AuthorizationView(OAuthViewMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(AuthorizationView, self).get_context_data(**kwargs)
-        scopes = self.oauth2_data['scopes']
-        context['application'] = Application.objects.get(client_id=self.oauth2_data['client_id'])
-        context['scopes_descriptions'] = [oauth_api_settings.SCOPES[scope] for scope in scopes]
-        context.update(self.oauth2_data)
+        if 'error' not in self.oauth2_data:
+            scopes = self.oauth2_data['scopes']
+            context['application'] = Application.objects.get(client_id=self.oauth2_data['client_id'])
+            context['scopes_descriptions'] = [oauth_api_settings.SCOPES[scope] for scope in scopes]
+            context.update(self.oauth2_data)
+        else:
+            context['error'] = self.oauth2_data['error'].oauthlib_error.error
         return context
 
     def form_valid(self, form):
@@ -78,7 +64,6 @@ class AuthorizationView(OAuthViewMixin, FormView):
             request=self.request, scopes=scopes, credentials=credentials, allow=allow)
         self.success_url = uri
         return super(AuthorizationView, self).form_valid(form)
-
 
 
 class TokenView(OAuthViewMixin, APIView):
