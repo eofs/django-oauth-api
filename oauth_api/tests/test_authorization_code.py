@@ -181,7 +181,7 @@ class TestAuthorizationCode(BaseTest):
 
     def test_authorization_code_post_allow(self):
         """
-        Test for user-agent authorized the client
+        Test for resource owner authorized the client
         """
         self.client.login(username='test_user', password='1234')
 
@@ -200,3 +200,23 @@ class TestAuthorizationCode(BaseTest):
         self.assertIn('http://localhost?', response['Location'])
         self.assertIn('state=random_state_string', response['Location'])
         self.assertIn('code=', response['Location'])
+
+    def test_authorization_code_post_denied(self):
+        """
+        Test for resource owner did not authorize the client
+        """
+        self.client.login(username='test_user', password='1234')
+
+        form_data = {
+            'client_id': self.application.client_id,
+            'state': 'random_state_string',
+            'scopes': 'read write',
+            'redirect_uri': 'http://localhost',
+            'response_type': 'code',
+            'allow': False,
+        }
+
+        response = self.client.post(reverse('oauth_api:authorize'), data=form_data)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn('error=access_denied', response['Location'])
