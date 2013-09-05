@@ -1,5 +1,3 @@
-import base64
-
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 
@@ -9,13 +7,14 @@ from rest_framework.test import APITestCase, APIRequestFactory
 from oauth_api.models import get_application_model
 from oauth_api.settings import oauth_api_settings
 from oauth_api.tests.views import RESPONSE_DATA
+from oauth_api.tests.utils import TestCaseUtils
 
 
 Application = get_application_model()
 User = get_user_model()
 
 
-class BaseTest(APITestCase):
+class BaseTest(TestCaseUtils, APITestCase):
     def setUp(self):
         self.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
         self.application = Application(
@@ -28,11 +27,6 @@ class BaseTest(APITestCase):
         self.application.save()
 
         self.request_factory = APIRequestFactory()
-
-    def get_basic_auth(self, username, password):
-        payload = '%s:%s' % (username, password)
-        auth = base64.b64encode(payload.encode('utf-8')).decode('utf-8')
-        return 'Basic {0}'.format(auth)
 
     def scopes_valid(self, scopes, required):
         provided_scopes = set(scopes.split())
