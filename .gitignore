@@ -10,3 +10,6 @@ local_settings.py
 
 # Unit tests
 .tox
+
+# PyPi
+dist/
