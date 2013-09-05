@@ -547,7 +547,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         self.assertEqual(response.data['scope'], 'read write')
         self.assertEqual(response.data['expires_in'], oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
 
-class TestResourceAccess(BaseTest):
+class TestAuthorizationCodeResourceAccess(BaseTest):
     def test_access_allowed(self):
         """
         Test for accessing resource using valid access token

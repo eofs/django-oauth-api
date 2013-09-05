@@ -68,6 +68,22 @@ class TestClientCredentials(BaseTest):
         self.assertTrue(self.scopes_valid(response.data['scope'], oauth_api_settings.SCOPES))
         self.assertEqual(response.data['expires_in'], oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
 
+    def test_invalid_scope(self):
+        """
+        Request an access toke and try to fetch data using it
+        """
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+        data = {
+            'grant_type': 'client_credentials',
+            'scope': 'invalid',
+        }
+        response = self.client.post(reverse('oauth_api:token'), data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class TestClientCredentialsResourceAccess(BaseTest):
     def test_resource_access(self):
         """
         Request an access toke and try to fetch data using it
@@ -114,17 +130,3 @@ class TestClientCredentials(BaseTest):
         response = self.client.get(reverse('resource-view'))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_invalid_scope(self):
-        """
-        Request an access toke and try to fetch data using it
-        """
-        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
-                                                                       self.application.client_secret))
-        data = {
-            'grant_type': 'client_credentials',
-            'scope': 'invalid',
-        }
-        response = self.client.post(reverse('oauth_api:token'), data)
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

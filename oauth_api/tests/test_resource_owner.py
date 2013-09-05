@@ -139,6 +139,8 @@ class TestResourceOwnerTokenView(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+
+class TestResourceOwnerResourceAccess(BaseTest):
     def test_resouce_access(self):
         """
         Request an access token and try to fetch data using it
