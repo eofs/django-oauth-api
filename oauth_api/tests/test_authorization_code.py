@@ -220,3 +220,42 @@ class TestAuthorizationCode(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertIn('error=access_denied', response['Location'])
+
+    def test_authorization_code_post_invalid_response_type(self):
+        """
+        Test for authorization code is given for an allowed request with a invalid response_type
+        """
+        self.client.login(username='test_user', password='1234')
+
+        form_data = {
+            'client_id': self.application.client_id,
+            'state': 'random_state_string',
+            'scopes': 'read write',
+            'redirect_uri': 'http://localhost',
+            'response_type': 'invalid',
+            'allow': True,
+        }
+
+        response = self.client.post(reverse('oauth_api:authorize'), data=form_data)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn('http://localhost?error=unauthorized_client', response['Location'])
+
+    def test_authorization_code_post_invalid_redirect_uri(self):
+        """
+        Test for authorization code is given for an allowed request with a invalid redirect_uri
+        """
+        self.client.login(username='test_user', password='1234')
+
+        form_data = {
+            'client_id': self.application.client_id,
+            'state': 'random_state_string',
+            'scopes': 'read write',
+            'redirect_uri': 'http://invalid.local.host',
+            'response_type': 'code',
+            'allow': True,
+        }
+
+        response = self.client.post(reverse('oauth_api:authorize'), data=form_data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
