@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 
 from rest_framework import status
-from rest_framework.test import APITestCase, APIRequestFactory
+from rest_framework.test import APITestCase
 
 from oauth_api.models import get_application_model
 from oauth_api.settings import oauth_api_settings
@@ -25,8 +25,6 @@ class BaseTest(TestCaseUtils, APITestCase):
             authorization_grant_type=Application.GRANT_CLIENT_CREDENTIALS,
         )
         self.application.save()
-
-        self.request_factory = APIRequestFactory()
 
     def scopes_valid(self, scopes, required):
         provided_scopes = set(scopes.split())
