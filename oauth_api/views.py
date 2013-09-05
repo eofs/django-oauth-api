@@ -3,6 +3,7 @@ import json
 from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 
+from rest_framework import status as http_status
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer, XMLRenderer
 from rest_framework.response import Response
@@ -41,7 +42,7 @@ class AuthorizationView(OAuthViewMixin, FormView):
         except FatalClientError as error:
             # Fatal error, could not determine client
             self.oauth2_data['error'] = error
-            return self.render_to_response(self.get_context_data(), status=400)
+            return self.render_to_response(self.get_context_data(), status=http_status.HTTP_400_BAD_REQUEST)
         except OAuthAPIError as error:
             # Redirect user-agent back to origin
             return self.error_response(error)
@@ -82,7 +83,12 @@ class AuthorizationView(OAuthViewMixin, FormView):
                 request=self.request, scopes=scopes, credentials=credentials, allow=allow)
             self.success_url = uri
             return super(AuthorizationView, self).form_valid(form)
+        except FatalClientError as error:
+            # Do not redirect resource owner
+            self.oauth2_data['error'] = error
+            return self.render_to_response(self.get_context_data(form=form), status=http_status.HTTP_400_BAD_REQUEST)
         except OAuthAPIError as error:
+            # Redirect resource owner
             return self.error_response(error)
 
 class TokenView(OAuthViewMixin, APIView):
