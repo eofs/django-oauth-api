@@ -293,6 +293,7 @@ class TestAuthorizationCode(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+
 class TestAuthorizationCodeTokenView(BaseTest):
     def test_basic_auth(self):
         """
