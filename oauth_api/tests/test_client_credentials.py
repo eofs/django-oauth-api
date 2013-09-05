@@ -42,11 +42,10 @@ class TestClientCredentials(BaseTest):
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'client_credentials',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['token_type'], 'Bearer')
@@ -57,13 +56,12 @@ class TestClientCredentials(BaseTest):
         """
         Authenticate by sending client_id and client_secret as part of data payload
         """
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'client_credentials',
             'client_id': self.application.client_id,
             'client_secret': self.application.client_secret,
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['token_type'], 'Bearer')
@@ -76,11 +74,10 @@ class TestClientCredentials(BaseTest):
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'client_credentials',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -89,8 +86,7 @@ class TestClientCredentials(BaseTest):
         # Update Basic Auth information
         self.client.credentials(HTTP_AUTHORIZATION='Bearer %s' % access_token)
 
-        url = reverse('resource-view')
-        response = self.client.get(url)
+        response = self.client.get(reverse('resource-view'))
 
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -102,12 +98,11 @@ class TestClientCredentials(BaseTest):
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'client_credentials',
             'scope': 'read',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -116,8 +111,7 @@ class TestClientCredentials(BaseTest):
         # Update Basic Auth information
         self.client.credentials(HTTP_AUTHORIZATION='Bearer %s' % access_token)
 
-        url = reverse('resource-view')
-        response = self.client.get(url)
+        response = self.client.get(reverse('resource-view'))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -127,11 +121,10 @@ class TestClientCredentials(BaseTest):
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'client_credentials',
             'scope': 'invalid',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

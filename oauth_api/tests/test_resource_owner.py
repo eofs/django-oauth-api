@@ -36,20 +36,18 @@ class TestResourceOwnerTokenView(BaseTest):
     def test_basic_auth(self):
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'password',
             'username': 'test_user',
             'password': '1234',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_auth_as_data(self):
         """
         Authenticate by sending client_id and client_secret as part of data payload
         """
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'password',
             'username': 'test_user',
@@ -57,14 +55,13 @@ class TestResourceOwnerTokenView(BaseTest):
             'client_id': self.application.client_id,
             'client_secret': self.application.client_secret,
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_invalid_auth(self):
         """
         Request token with invalid user credentials
         """
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'password',
             'username': 'invalid',
@@ -72,14 +69,13 @@ class TestResourceOwnerTokenView(BaseTest):
             'client_id': self.application.client_id,
             'client_secret': self.application.client_secret,
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_invalid_client(self):
         """
         Request token with invalid client credentials
         """
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'password',
             'username': 'test_user',
@@ -87,7 +83,7 @@ class TestResourceOwnerTokenView(BaseTest):
             'client_id': 'invalid',
             'client_secret': 'invalid',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_valid_default_scope_request(self):
@@ -96,13 +92,12 @@ class TestResourceOwnerTokenView(BaseTest):
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'password',
             'username': 'test_user',
             'password': '1234',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['token_type'], 'Bearer')
@@ -115,14 +110,13 @@ class TestResourceOwnerTokenView(BaseTest):
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'password',
             'username': 'test_user',
             'password': '1234',
             'scope': 'read',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['token_type'], 'Bearer')
@@ -135,14 +129,13 @@ class TestResourceOwnerTokenView(BaseTest):
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'password',
             'username': 'test_user',
             'password': '1234',
             'scope': 'BANANA',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -152,13 +145,12 @@ class TestResourceOwnerTokenView(BaseTest):
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'password',
             'username': 'test_user',
             'password': '1234',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -167,8 +159,7 @@ class TestResourceOwnerTokenView(BaseTest):
         # Update Basic Auth information
         self.client.credentials(HTTP_AUTHORIZATION='Bearer %s' % access_token)
 
-        url = reverse('resource-view')
-        response = self.client.get(url)
+        response = self.client.get(reverse('resource-view'))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, RESPONSE_DATA)
@@ -179,14 +170,13 @@ class TestResourceOwnerTokenView(BaseTest):
         """
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
-        url = reverse('oauth_api:token')
         data = {
             'grant_type': 'password',
             'username': 'test_user',
             'password': '1234',
             'scope': 'read',
         }
-        response = self.client.post(url, data)
+        response = self.client.post(reverse('oauth_api:token'), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -195,7 +185,6 @@ class TestResourceOwnerTokenView(BaseTest):
         # Update Basic Auth information
         self.client.credentials(HTTP_AUTHORIZATION='Bearer %s' % access_token)
 
-        url = reverse('resource-view')
-        response = self.client.get(url)
+        response = self.client.get(reverse('resource-view'))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
