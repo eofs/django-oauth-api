@@ -6,9 +6,7 @@ from oauthlib.oauth2 import (InvalidClientIdError, MissingClientIdError,
                              InvalidRedirectURIError, MismatchingRedirectURIError)
 
 from rest_framework import status
-from rest_framework.test import APITestCase
 
-from oauth_api.compat import urlparse, parse_qs
 from oauth_api.models import get_application_model, AuthorizationCode
 from oauth_api.settings import oauth_api_settings
 from oauth_api.tests.utils import TestCaseUtils
@@ -19,7 +17,7 @@ Application = get_application_model()
 User = get_user_model()
 
 
-class BaseTest(TestCaseUtils, APITestCase):
+class BaseTest(TestCaseUtils):
     def setUp(self):
         self.test_user = User.objects.create_user('test_user', 'test_user@example.com', '1234')
         self.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
@@ -40,25 +38,6 @@ class BaseTest(TestCaseUtils, APITestCase):
             authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
         )
         self.application_public.save()
-
-    def get_code(self, client_id=None):
-        """
-        Utility method to get Authorization Code
-        """
-        form_data = {
-            'client_id': client_id or self.application.client_id,
-            'state': 'random_state_string',
-            'scopes': 'read write',
-            'redirect_uri': 'http://localhost',
-            'response_type': 'code',
-            'allow': True,
-        }
-
-        response = self.client.post(reverse('oauth_api:authorize'), data=form_data)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        query_dict = parse_qs(urlparse(response['Location']).query)
-        return query_dict['code'].pop()
 
 
 class TestAuthorizationCode(BaseTest):
@@ -300,7 +279,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         Test for requesting access token using Basic Authentication
         """
         self.client.login(username='test_user', password='1234')
-        authorization_code = self.get_code()
+        authorization_code = self.get_authorization_code()
 
         token_request = {
             'grant_type': 'authorization_code',
@@ -323,7 +302,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         Test for requesting access toke using invalid secret via Basic Authentication
         """
         self.client.login(username='test_user', password='1234')
-        authorization_code = self.get_code()
+        authorization_code = self.get_authorization_code()
 
         token_request = {
             'grant_type': 'authorization_code',
@@ -362,7 +341,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         Test for requesting access token using invalid grant_type
         """
         self.client.login(username='test_user', password='1234')
-        authorization_code = self.get_code()
+        authorization_code = self.get_authorization_code()
 
         token_request = {
             'grant_type': 'invalid',
@@ -403,7 +382,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         Test for requesting access token using refresh token
         """
         self.client.login(username='test_user', password='1234')
-        authorization_code = self.get_code()
+        authorization_code = self.get_authorization_code()
 
         token_request = {
             'grant_type': 'authorization_code',
@@ -435,7 +414,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         Test for requesting access token using refresh token while not providing any scopes
         """
         self.client.login(username='test_user', password='1234')
-        authorization_code = self.get_code()
+        authorization_code = self.get_authorization_code()
 
         token_request = {
             'grant_type': 'authorization_code',
@@ -466,7 +445,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         Test for requesting access token using refresh token while providing invalid scopes
         """
         self.client.login(username='test_user', password='1234')
-        authorization_code = self.get_code()
+        authorization_code = self.get_authorization_code()
 
         token_request = {
             'grant_type': 'authorization_code',
@@ -497,7 +476,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         Test for requesting access token using refresh token and repeating the request
         """
         self.client.login(username='test_user', password='1234')
-        authorization_code = self.get_code()
+        authorization_code = self.get_authorization_code()
 
         token_request = {
             'grant_type': 'authorization_code',
@@ -530,7 +509,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         Test for requesting access token using client_type 'public'
         """
         self.client.login(username='test_user', password='1234')
-        authorization_code = self.get_code(self.application_public.client_id)
+        authorization_code = self.get_authorization_code(self.application_public.client_id)
 
         token_request = {
             'grant_type': 'authorization_code',
@@ -548,29 +527,16 @@ class TestAuthorizationCodeTokenView(BaseTest):
         self.assertEqual(response.data['scope'], 'read write')
         self.assertEqual(response.data['expires_in'], oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
 
+
 class TestAuthorizationCodeResourceAccess(BaseTest):
     def test_access_allowed(self):
         """
         Test for accessing resource using valid access token
         """
         self.client.login(username='test_user', password='1234')
-        authorization_code = self.get_code()
+        authorization_code = self.get_authorization_code()
+        access_token = self.get_access_token(authorization_code)
 
-        token_request = {
-            'grant_type': 'authorization_code',
-            'code': authorization_code,
-            'redirect_uri': 'http://localhost',
-        }
-
-        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
-                                                                       self.application.client_secret))
-
-        response = self.client.post(reverse('oauth_api:token'), token_request)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue('access_token' in response.data)
-
-        access_token = response.data['access_token']
         self.client.credentials(HTTP_AUTHORIZATION='Bearer %s' % access_token)
 
         response = self.client.get(reverse('resource-view'))
