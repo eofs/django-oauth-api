@@ -33,15 +33,16 @@ class TestCaseUtils(APITestCase):
         query_dict = parse_qs(urlparse(response['Location']).query)
         return query_dict['code'].pop()
 
-    def get_access_token(self, authorization_code, redirect_uri=None):
+    def get_access_token(self, authorization_code, **kwargs):
         """
         Utility function to return Access Token for Authorization Code
         """
         token_request = {
             'grant_type': 'authorization_code',
             'code': authorization_code,
-            'redirect_uri': redirect_uri or 'http://localhost',
+            'redirect_uri': 'http://localhost',
         }
+        token_request.update(kwargs)
 
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
