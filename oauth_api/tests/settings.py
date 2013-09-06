@@ -83,6 +83,14 @@ LOGGING = {
     }
 }
 
+OAUTH_API = {
+    'SCOPES': {
+        'scope1': 'Some scope',
+        'read': 'Read access',
+        'write': 'Write access',
+    },
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
