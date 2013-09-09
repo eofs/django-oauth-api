@@ -73,6 +73,6 @@ class OAuthHandler(object):
         Wrapper method to call `verify_request` in OAuthLib
         """
         uri, method, data, headers = self.extract_params(request)
-        body = urlencode(data)
+        body = urlencode(data.items())
         valid, r = self.server.verify_request(uri, method, body, headers, scopes=scopes)
         return valid, r
