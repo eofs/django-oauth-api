@@ -140,7 +140,7 @@ class OAuthValidator(RequestValidator):
         Ensure the Bearer token is valid and authorized access to scopes.
         """
         try:
-            access_token = AccessToken.objects.get(token=token)
+            access_token = AccessToken.objects.select_related('application', 'user').get(token=token)
             if access_token.is_valid(scopes):
                 request.client = access_token.application
                 request.user = access_token.user
@@ -168,7 +168,7 @@ class OAuthValidator(RequestValidator):
         Ensure the authorization_code is valid and assigned to client.
         """
         try:
-            auth_code = AuthorizationCode.objects.get(application=client, code=code)
+            auth_code = AuthorizationCode.objects.select_related('user').get(application=client, code=code)
             if not auth_code.is_expired:
                 request.scopes = auth_code.scope.split(' ')
                 request.user = auth_code.user
@@ -195,7 +195,7 @@ class OAuthValidator(RequestValidator):
         Ensure the Bearer token is valid and authorized access to scopes.
         """
         try:
-            rt = RefreshToken.objects.get(token=refresh_token)
+            rt = RefreshToken.objects.select_related('user').get(token=refresh_token)
             request.user = rt.user
             return rt.application == client
         except RefreshToken.DoesNotExist:
