@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 
 from rest_framework import status
+from rest_framework.test import APIRequestFactory
 
 from oauth_api.models import get_application_model, AuthorizationCode, AccessToken
 from oauth_api.tests.utils import TestCaseUtils
-from oauth_api.tests.views import RESPONSE_DATA
+from oauth_api.tests.views import RESPONSE_DATA, ResourceNoScopesView
 
 
 Application = get_application_model()
@@ -24,6 +26,8 @@ class BaseTest(TestCaseUtils):
             authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
         )
         self.application.save()
+
+        self.factory = APIRequestFactory()
 
 
 class TestScopes(BaseTest):
@@ -283,3 +287,20 @@ class TestScopesResourceViews(BaseTest):
         response = self.client.post(reverse('resource-mixed-view'))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_improperly_configured(self):
+        """
+        Test access to resource without any required scopes defined
+        """
+        self.client.login(username='test_user', password='1234')
+        authorization_code = self.get_authorization_code(scopes='read')
+        access_token = self.get_access_token(authorization_code)
+
+        headers = {
+            'HTTP_AUTHORIZATION': 'Bearer %s' % access_token,
+        }
+        request = self.factory.get('/fake', **headers)
+
+        view = ResourceNoScopesView.as_view()
+
+        self.assertRaises(ImproperlyConfigured, view, request)

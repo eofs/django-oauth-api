@@ -35,3 +35,8 @@ class ResourceReadWriteScopesView(ResourceWriteScopesView, ResourceReadScopesVie
 
 class ResourceMixedScopesView(ResourceReadWriteScopesView, APIView):
     required_scopes = ['scope1']
+
+
+class ResourceNoScopesView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response(RESPONSE_DATA)
