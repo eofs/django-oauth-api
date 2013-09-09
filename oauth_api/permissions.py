@@ -1,3 +1,5 @@
+from django.core.exceptions import ImproperlyConfigured
+
 from rest_framework.permissions import BasePermission
 
 
@@ -17,6 +19,7 @@ class OAuth2ScopePermission(BasePermission):
 
         if hasattr(token, 'scope'):
             scopes = self.get_scopes(request, view)
+
             if scopes['required'] is not None:
                 is_valid = token.is_valid(scopes['required'])
                 if is_valid == False:
@@ -35,11 +38,20 @@ class OAuth2ScopePermission(BasePermission):
 
             return is_valid
 
-        return False
+        assert False, ('OAuth2ScopePermission requires the '
+                       '`oauth_api.authentication.OAuth2Authentication` '
+                       'class to be used.')
 
     def get_scopes(self, request, view):
+        required = getattr(view, 'required_scopes', None)
+        read = getattr(view, 'read_scopes', None)
+        write = getattr(view, 'write_scopes', None)
+
+        if not required and not read and not write:
+            raise ImproperlyConfigured('OAuth protected resources requires scopes. Please add required_scopes, read_scopes or write_scopes.')
+
         return {
-            'required': getattr(view, 'required_scopes', None),
-            'read': getattr(view, 'read_scopes', None),
-            'write': getattr(view, 'write_scopes', None),
+            'required': required,
+            'read': read,
+            'write': write,
         }
