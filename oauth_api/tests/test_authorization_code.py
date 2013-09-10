@@ -409,6 +409,42 @@ class TestAuthorizationCodeTokenView(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('access_token' in response.data)
 
+    def test_refresh_token_override_authorization(self):
+        """
+        Test overriding Authorization header by providing client ID and secret as param
+        """
+        self.client.login(username='test_user', password='1234')
+        authorization_code = self.get_authorization_code()
+
+        token_request = {
+            'grant_type': 'authorization_code',
+            'code': authorization_code,
+            'redirect_uri': 'http://localhost',
+        }
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+
+        response = self.client.post(reverse('oauth_api:token'), token_request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('refresh_token' in response.data)
+
+        token_request = {
+            'grant_type': 'refresh_token',
+            'refresh_token': response.data['refresh_token'],
+            'scope': response.data['scope'],
+            'client_id': self.application.client_id,
+            'client_secret': self.application.client_secret,
+        }
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth('invalid_client_id',
+                                                                       'invalid_client_secret'))
+
+        response = self.client.post(reverse('oauth_api:token'), token_request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('access_token' in response.data)
+
+
     def test_refresh_token_default_scopes(self):
         """
         Test for requesting access token using refresh token while not providing any scopes

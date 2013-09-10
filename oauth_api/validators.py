@@ -29,8 +29,10 @@ class OAuthValidator(RequestValidator):
         Try to authenticate the client.
         """
         auth = request.headers.get('HTTP_AUTHORIZATION', None)
+        client_id = request.body.get('client_id', None)
+        client_secret = request.body.get('client_secret', None)
 
-        if auth:
+        if auth and not client_id and not client_secret:
             auth_type, auth_string = auth.split(' ')
             encoding = request.encoding or 'utf-8'
 
@@ -39,12 +41,8 @@ class OAuthValidator(RequestValidator):
                 client_id, client_secret = auth_string_decoded.split(':', 1)
             except (TypeError, UnicodeDecodeError):
                 return False
-        else:
-            client_id = request.body.get('client_id', None)
-            client_secret = request.body.get('client_secret', None)
-
-            if not client_id or not client_secret:
-                return False
+        elif not client_id and not client_secret:
+            return False
 
         try:
             request.client = Application.objects.get(client_id=client_id, client_secret=client_secret)
