@@ -34,8 +34,11 @@ class OAuthValidator(RequestValidator):
             auth_type, auth_string = auth.split(' ')
             encoding = request.encoding or 'utf-8'
 
-            auth_string_decoded = base64.b64decode(auth_string).decode(encoding)
-            client_id, client_secret = auth_string_decoded.split(':', 1)
+            try:
+                auth_string_decoded = base64.b64decode(auth_string).decode(encoding)
+                client_id, client_secret = auth_string_decoded.split(':', 1)
+            except (TypeError, UnicodeDecodeError):
+                return False
         else:
             client_id = request.body.get('client_id', None)
             client_secret = request.body.get('client_secret', None)
