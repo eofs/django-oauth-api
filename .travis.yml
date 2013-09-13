@@ -5,8 +5,8 @@ python:
     - "3.3"
 
 env:
-    - DJANGO="django==1.5.2"
-    - DJANGO="https://www.djangoproject.com/download/1.6b2/tarball/"
+    - DJANGO="django==1.5.3"
+    - DJANGO="https://www.djangoproject.com/download/1.6b3/tarball/"
 
 install:
     - pip install $DJANGO
