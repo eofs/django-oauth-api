@@ -164,6 +164,7 @@ class RefreshToken(models.Model):
     access_token = models.OneToOneField(AccessToken,
                                         related_name='refresh_token')
 
+
 def get_application_model():
     """
     Return active Appliation model. Use settings to override active model.

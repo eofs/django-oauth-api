@@ -86,8 +86,7 @@ class OAuthValidator(RequestValidator):
         """
         Get the list of scopes associated with the refresh token.
         """
-        rt = RefreshToken.objects.get(token=refresh_token)
-        return rt.access_token.scope
+        return request.refresh_token_object.access_token.scope
 
     def invalidate_authorization_code(self, client_id, code, request, *args, **kwargs):
         """
