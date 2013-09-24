@@ -38,8 +38,9 @@ class OAuthHandler(object):
 
             credentials['user'] = request.user
 
-            uri, headers, body, status = self.server.create_authorization_response(
+            headers, body, status = self.server.create_authorization_response(
                 uri=credentials['redirect_uri'], scopes=scopes, credentials=credentials)
+            uri = headers.get('Location', None)
 
             return uri, headers, body, status
         except oauth2.FatalClientError as error:
@@ -49,7 +50,8 @@ class OAuthHandler(object):
 
     def create_token_response(self, request):
         uri, method, data, headers = self.extract_params(request)
-        url, headers, body, status = self.server.create_token_response(uri, method, data, headers)
+        headers, body, status = self.server.create_token_response(uri, method, data, headers)
+        url = headers.get('Location', None)
         return url, headers, body, status
 
     def validate_authorization_request(self, request):
