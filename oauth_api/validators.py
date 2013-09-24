@@ -24,24 +24,38 @@ GRANT_TYPE_MAPPING = {
 
 class OAuthValidator(RequestValidator):
 
-    def authenticate_client(self, request, *args, **kwargs):
+    def _authenticate_client_basic(self, request):
         """
-        Try to authenticate the client.
+        Try authenticating the client using HTTP Basic Authentication method
         """
         auth = request.headers.get('HTTP_AUTHORIZATION', None)
-        client_id = request.body.get('client_id', None)
-        client_secret = request.body.get('client_secret', None)
 
-        if auth and not client_id and not client_secret:
-            auth_type, auth_string = auth.split(' ')
-            encoding = request.encoding or 'utf-8'
+        if not auth:
+            return False
 
-            try:
-                auth_string_decoded = base64.b64decode(auth_string).decode(encoding)
-                client_id, client_secret = auth_string_decoded.split(':', 1)
-            except (TypeError, UnicodeDecodeError):
-                return False
-        elif not client_id and not client_secret:
+        auth_type, auth_string = auth.split(' ')
+        if not auth_type == 'Basic':
+            return False
+
+        encoding = request.encoding or 'utf-8'
+
+        auth_string_decoded = base64.b64decode(auth_string).decode(encoding)
+        client_id, client_secret = auth_string_decoded.split(':', 1)
+
+        try:
+            request.client = Application.objects.get(client_id=client_id, client_secret=client_secret)
+            return True
+        except Application.DoesNotExist:
+            return False
+
+    def _authenticate_client_body(self, request):
+        """
+        Try authenticating the client using values from request body
+        """
+        client_id = request.client_id
+        client_secret = request.client_secret
+
+        if not client_id:
             return False
 
         try:
@@ -49,6 +63,17 @@ class OAuthValidator(RequestValidator):
             return True
         except Application.DoesNotExist:
             return False
+
+    def authenticate_client(self, request, *args, **kwargs):
+        """
+        Try to authenticate the client.
+        """
+        authenticated = self._authenticate_client_basic(request)
+
+        if not authenticated:
+            authenticated = self._authenticate_client_body(request)
+
+        return authenticated
 
     def authenticate_client_id(self, client_id, request, *args, **kwargs):
         """
