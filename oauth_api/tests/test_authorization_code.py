@@ -398,6 +398,18 @@ class TestAuthorizationCodeTokenView(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('refresh_token' in response.data)
 
+        # Make second token request to be sure that previous refresh token
+        # remains valid.
+        authorization_code = self.get_authorization_code()
+        token_request = {
+            'grant_type': 'authorization_code',
+            'code': authorization_code,
+            'redirect_uri': 'http://localhost',
+        }
+        self.client.post(reverse('oauth_api:token'), token_request)
+
+        # Request new access token using the refresh token from the first
+        # request
         token_request = {
             'grant_type': 'refresh_token',
             'refresh_token': response.data['refresh_token'],
@@ -408,6 +420,11 @@ class TestAuthorizationCodeTokenView(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('access_token' in response.data)
+
+        # Refresh tokens cannot be used twice
+        response = self.client.post(reverse('oauth_api:token'), token_request)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('invalid_grant' in response.data.values())
 
     def test_refresh_token_override_authorization(self):
         """

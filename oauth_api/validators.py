@@ -111,6 +111,14 @@ class OAuthValidator(RequestValidator):
         """
         Persist the Bearer token.
         """
+        if request.refresh_token_object:
+            # Remove used refresh token
+            try:
+                RefreshToken.objects.get(token=request.refresh_token).delete()
+            except RefreshToken.DoesNotExist:
+                # Already deleted?
+                assert()
+
         expires = timezone.now() + timedelta(seconds=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
         if request.grant_type == 'client_credentials':
             request.user = request.client.user
@@ -124,9 +132,6 @@ class OAuthValidator(RequestValidator):
         access_token.save()
 
         if 'refresh_token' in token:
-            # Discard old refresh token
-            RefreshToken.objects.filter(user=request.user, application=request.client).delete()
-
             refresh_token = RefreshToken(
                 user=request.user,
                 token=token['refresh_token'],
@@ -198,6 +203,7 @@ class OAuthValidator(RequestValidator):
         try:
             rt = RefreshToken.objects.select_related('user').get(token=refresh_token)
             request.user = rt.user
+            request.refresh_token_object = rt
             return rt.application == client
         except RefreshToken.DoesNotExist:
             return False
