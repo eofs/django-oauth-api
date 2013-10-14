@@ -34,7 +34,7 @@ setup(
     ],
     keywords='django oauth oauth2 oauthlib',
     author='Tomi Pajunen',
-    author_email='eofs@madlab.fi',
+    author_email='tomi@madlab.fi',
     url='https://github.com/eofs/django-oauth-api',
     license='BSD',
     packages=find_packages(),
