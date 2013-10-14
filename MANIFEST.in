@@ -1,0 +1,1 @@
+recursive-include oauth_api/templates *.html
