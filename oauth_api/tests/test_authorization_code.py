@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -7,7 +9,7 @@ from oauthlib.oauth2 import (InvalidClientIdError, MissingClientIdError,
 
 from rest_framework import status
 
-from oauth_api.models import get_application_model, AuthorizationCode
+from oauth_api.models import get_application_model, AuthorizationCode, RefreshToken
 from oauth_api.settings import oauth_api_settings
 from oauth_api.tests.utils import TestCaseUtils
 from oauth_api.tests.views import RESPONSE_DATA
@@ -556,6 +558,72 @@ class TestAuthorizationCodeTokenView(BaseTest):
 
         response = self.client.post(reverse('oauth_api:token'), token_request)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_refresh_token_expired(self):
+        """
+        Test for requesting access token using expired refresh token
+        """
+        self.client.login(username='test_user', password='1234')
+        authorization_code = self.get_authorization_code()
+
+        token_request = {
+            'grant_type': 'authorization_code',
+            'code': authorization_code,
+            'redirect_uri': 'http://localhost',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+
+        response = self.client.post(reverse('oauth_api:token'), token_request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('refresh_token' in response.data)
+
+        token_request = {
+            'grant_type': 'refresh_token',
+            'refresh_token': response.data['refresh_token'],
+            'scope': response.data['scope'],
+        }
+
+        # Set expiration time to expire the token
+        RefreshToken.objects.update(expires=timezone.now())
+
+        response = self.client.post(reverse('oauth_api:token'), token_request)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_refresh_token_not_expired(self):
+        """
+        Test for requesting access token using refresh token with expiration date
+        """
+        self.client.login(username='test_user', password='1234')
+        authorization_code = self.get_authorization_code()
+
+        token_request = {
+            'grant_type': 'authorization_code',
+            'code': authorization_code,
+            'redirect_uri': 'http://localhost',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+
+        response = self.client.post(reverse('oauth_api:token'), token_request)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('refresh_token' in response.data)
+
+        token_request = {
+            'grant_type': 'refresh_token',
+            'refresh_token': response.data['refresh_token'],
+            'scope': response.data['scope'],
+        }
+
+        # Set expiration time to future
+        RefreshToken.objects.update(expires=timezone.now() + timedelta(days=7))
+
+        response = self.client.post(reverse('oauth_api:token'), token_request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_public(self):
         """

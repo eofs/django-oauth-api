@@ -7,6 +7,7 @@ USER_SETTINGS = getattr(settings, 'OAUTH_API', None)
 
 DEFAULTS = {
     'ACCESS_TOKEN_EXPIRATION': 3600, # Seconds
+    'REFRESH_TOKEN_EXPIRATION': None, # Seconds, (None == disabled)
     'APPLICATION_MODEL': 'oauth_api.Application',
     'CLIENT_ID_GENERATOR': 'oauth_api.generators.ClientIdGenerator',
     'CLIENT_SECRET_GENERATOR': 'oauth_api.generators.ClientSecretGenerator',

@@ -156,9 +156,14 @@ class OAuthValidator(RequestValidator):
         access_token.save()
 
         if 'refresh_token' in token:
+            if oauth_api_settings.REFRESH_TOKEN_EXPIRATION is not None:
+                expires = timezone.now() + timedelta(seconds=oauth_api_settings.REFRESH_TOKEN_EXPIRATION)
+            else:
+                expires = None
             refresh_token = RefreshToken(
                 user=request.user,
                 token=token['refresh_token'],
+                expires=expires,
                 application=request.client,
                 access_token=access_token)
             refresh_token.save()
@@ -226,9 +231,11 @@ class OAuthValidator(RequestValidator):
         """
         try:
             rt = RefreshToken.objects.select_related('user').get(token=refresh_token)
-            request.user = rt.user
-            request.refresh_token_object = rt
-            return rt.application == client
+            if not rt.is_expired:
+                request.user = rt.user
+                request.refresh_token_object = rt
+                return rt.application == client
+            return False
         except RefreshToken.DoesNotExist:
             return False
 

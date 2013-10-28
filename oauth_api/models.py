@@ -160,9 +160,19 @@ class RefreshToken(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     token = models.CharField(max_length=255)
+    expires = models.DateTimeField(null=True, blank=True)
     application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL)
     access_token = models.OneToOneField(AccessToken,
                                         related_name='refresh_token')
+
+    @property
+    def is_expired(self):
+        """
+        Check if code has been expired.
+        """
+        if self.expires is None:
+            return False
+        return timezone.now() >= self.expires
 
 
 def get_application_model():
