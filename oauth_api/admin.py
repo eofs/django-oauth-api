@@ -25,6 +25,7 @@ admin.site.register(AuthorizationCode, AuthorizationCodeAdmin)
 
 
 class RefreshTokenAdmin(admin.ModelAdmin):
-    list_display = ('token', 'application', 'user', 'created', 'updated')
+    list_display = ('token', 'application', 'expires', 'user', 'created', 'updated')
+    list_filter = ('expires',)
 
 admin.site.register(RefreshToken, RefreshTokenAdmin)
