@@ -15,10 +15,10 @@ Application = get_application_model()
 
 
 GRANT_TYPE_MAPPING = {
-    'authorization_code': (Application.GRANT_ALLINONE, Application.GRANT_AUTHORIZATION_CODE),
-    'password': (Application.GRANT_ALLINONE, Application.GRANT_PASSWORD),
-    'client_credentials': (Application.GRANT_ALLINONE, Application.GRANT_CLIENT_CREDENTIALS),
-    'refresh_token': (Application.GRANT_ALLINONE, Application.GRANT_AUTHORIZATION_CODE, Application.GRANT_PASSWORD,
+    'authorization_code': (Application.GRANT_AUTHORIZATION_CODE,),
+    'password': (Application.GRANT_PASSWORD,),
+    'client_credentials': (Application.GRANT_CLIENT_CREDENTIALS,),
+    'refresh_token': (Application.GRANT_AUTHORIZATION_CODE, Application.GRANT_PASSWORD,
                       Application.GRANT_CLIENT_CREDENTIALS)
 }
 

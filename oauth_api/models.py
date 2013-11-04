@@ -22,13 +22,11 @@ class AbstractApplication(models.Model):
         (CLIENT_PUBLIC, _('Public')),
     )
 
-    GRANT_ALLINONE = 'all-in-one'
     GRANT_AUTHORIZATION_CODE = 'authorization-code'
     GRANT_IMPLICIT = 'implicit'
     GRANT_PASSWORD = 'password'
     GRANT_CLIENT_CREDENTIALS = 'client-credentials'
     GRANT_TYPES = (
-        (GRANT_ALLINONE, _('All-in-one generic')),
         (GRANT_AUTHORIZATION_CODE, _('Authorization code')),
         (GRANT_IMPLICIT, _('Implicit')),
         (GRANT_PASSWORD, _('Resource owner password-based')),
@@ -60,7 +58,6 @@ class AbstractApplication(models.Model):
         from django.core.exceptions import ValidationError
         if not self.redirect_uris and self.authorization_grant_type \
             in (
-                AbstractApplication.GRANT_ALLINONE,
                 AbstractApplication.GRANT_AUTHORIZATION_CODE,
                 AbstractApplication.GRANT_IMPLICIT,
             ):

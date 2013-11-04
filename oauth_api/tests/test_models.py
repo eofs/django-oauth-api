@@ -42,7 +42,7 @@ class TestModels(TestCase):
             redirect_uris='http://localhost http://example.com',
             user=self.dev_user,
             client_type=Appliation.CLIENT_CONFIDENTIAL,
-            authorization_grant_type=Appliation.GRANT_ALLINONE,
+            authorization_grant_type=Appliation.GRANT_AUTHORIZATION_CODE
         )
 
         self.assertEqual(app.default_redirect_uri, 'http://localhost')
@@ -53,7 +53,7 @@ class TestModels(TestCase):
             redirect_uris='http://localhost http://example.com',
             user=self.dev_user,
             client_type=Appliation.CLIENT_CONFIDENTIAL,
-            authorization_grant_type=Appliation.GRANT_ALLINONE,
+            authorization_grant_type=Appliation.GRANT_AUTHORIZATION_CODE
         )
 
         self.assertTrue(app.redirect_uri_allowed('http://localhost'))
@@ -64,21 +64,10 @@ class TestModels(TestCase):
             redirect_uris='http://localhost http://example.com',
             user=self.dev_user,
             client_type=Appliation.CLIENT_CONFIDENTIAL,
-            authorization_grant_type=Appliation.GRANT_ALLINONE,
+            authorization_grant_type=Appliation.GRANT_AUTHORIZATION_CODE
         )
 
         self.assertFalse(app.redirect_uri_allowed('http://invalid.local.host'))
-
-    def test_grant_allinone(self):
-        app = Appliation(
-            name='Test App',
-            redirect_uris='',
-            user=self.dev_user,
-            client_type=Appliation.CLIENT_CONFIDENTIAL,
-            authorization_grant_type=Appliation.GRANT_ALLINONE,
-        )
-
-        self.assertRaises(ValidationError, app.full_clean)
 
     def test_grant_authorization_code(self):
         app = Appliation(
