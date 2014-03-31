@@ -11,6 +11,9 @@ DEFAULTS = {
     'APPLICATION_MODEL': 'oauth_api.Application',
     'CLIENT_ID_GENERATOR': 'oauth_api.generators.ClientIdGenerator',
     'CLIENT_SECRET_GENERATOR': 'oauth_api.generators.ClientSecretGenerator',
+    'DEFAULT_HANDLER_CLASS': 'oauth_api.handlers.OAuthHandler',
+    'DEFAULT_SERVER_CLASS': 'oauthlib.oauth2.Server',
+    'DEFAULT_VALIDATOR_CLASS': 'oauth_api.validators.OAuthValidator',
     'SCOPES': {
         'read': 'Read access',
         'write': 'Write access',
@@ -21,6 +24,9 @@ DEFAULTS = {
 IMPORT_STRINGS = (
     'CLIENT_ID_GENERATOR',
     'CLIENT_SECRET_GENERATOR',
+    'DEFAULT_HANDLER_CLASS',
+    'DEFAULT_SERVER_CLASS',
+    'DEFAULT_VALIDATOR_CLASS',
 )
 
 

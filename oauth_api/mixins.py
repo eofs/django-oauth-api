@@ -1,8 +1,4 @@
-from oauthlib.oauth2 import Server
-
 from oauth_api.exceptions import FatalClientError
-from oauth_api.validators import OAuthValidator
-from oauth_api.handlers import OAuthHandler
 from oauth_api.settings import oauth_api_settings
 
 
@@ -49,7 +45,7 @@ class OAuthViewMixin(object):
         server_class = self.oauth_server_class
         if server_class is not None:
             return server_class
-        return Server
+        return oauth_api_settings.DEFAULT_SERVER_CLASS
 
     def get_validator_class(self):
         """
@@ -59,7 +55,7 @@ class OAuthViewMixin(object):
         validator_class = self.oauth_validator_class
         if validator_class is not None:
             return validator_class
-        return OAuthValidator
+        return oauth_api_settings.DEFAULT_VALIDATOR_CLASS
 
     def get_handler_class(self):
         """
@@ -69,7 +65,7 @@ class OAuthViewMixin(object):
         handler_class = self.oauth_handler_class
         if handler_class is not None:
             return handler_class
-        return OAuthHandler
+        return oauth_api_settings.DEFAULT_HANDLER_CLASS
 
     def get_request_handler(self):
         """
