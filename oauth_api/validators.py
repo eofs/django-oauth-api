@@ -174,6 +174,9 @@ class OAuthValidator(RequestValidator):
         """
         Ensure the Bearer token is valid and authorized access to scopes.
         """
+        if token is None:
+            return False
+
         try:
             access_token = AccessToken.objects.select_related('application', 'user').get(token=token)
             if access_token.is_valid(scopes):
