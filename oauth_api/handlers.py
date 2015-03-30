@@ -13,7 +13,7 @@ class OAuthHandler(object):
     def extract_params(self, request):
 
         if isinstance(request, Request):
-            data = request.DATA
+            data = request.data
             headers = request._request.META.copy()
             uri = request._request.build_absolute_uri()
         else:
