@@ -45,6 +45,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 ROOT_URLCONF = 'oauth_api.tests.urls'
 
 TEMPLATE_DIRS = ()
