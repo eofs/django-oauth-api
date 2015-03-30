@@ -1,17 +1,19 @@
 language: python
 
-python:
-    - "2.7"
-    - "3.3"
+sudo: false
 
 env:
-    - DJANGO="django==1.5.5"
-    - DJANGO="https://www.djangoproject.com/download/1.6/tarball/"
+    - TOX_ENV=py34-django17
+    - TOX_ENV=py33-django17
+    - TOX_ENV=py32-django17
+    - TOX_ENV=py27-django17
+    - TOX_ENV=py34-django18beta
+    - TOX_ENV=py33-django18beta
+    - TOX_ENV=py32-django18beta
+    - TOX_ENV=py27-django18beta
 
 install:
-    - pip install $DJANGO
-    - pip install djangorestframework>=2.3
-    - pip install oauthlib==0.6.0
+    - pip install tox
 
 script:
-    - python runtests.py
+    - tox -e $TOX_ENV
