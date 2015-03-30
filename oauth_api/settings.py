@@ -1,5 +1,7 @@
+import importlib
+
 from django.conf import settings
-from django.utils import importlib, six
+from django.utils import six
 
 
 USER_SETTINGS = getattr(settings, 'OAUTH_API', None)
