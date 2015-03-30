@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.utils import timezone
 
 from oauth_api.models import AccessToken, get_application_model
 
@@ -14,7 +15,7 @@ class TestModels(TestCase):
         self.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
 
     def test_allow_scopes(self):
-        app = Appliation(
+        app = Appliation.objects.create(
             name='Test App',
             redirect_uris='http://localhost http://example.com',
             user=self.dev_user,
@@ -22,10 +23,13 @@ class TestModels(TestCase):
             authorization_grant_type=Appliation.GRANT_AUTHORIZATION_CODE,
         )
 
-        access_token = AccessToken(
+        now = timezone.now()
+        expires = now + timezone.timedelta(days=7)
+        
+        access_token = AccessToken.objects.create(
             user=self.dev_user,
             scope='read write',
-            expires=0,
+            expires=expires,
             token='',
             application=app,
         )
