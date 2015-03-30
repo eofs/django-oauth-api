@@ -7,22 +7,34 @@ from django.utils import timezone
 
 from oauthlib.oauth2 import RequestValidator
 
-from oauth_api.models import get_application_model, AccessToken, AuthorizationCode, RefreshToken
+from oauth_api.models import get_application_model, AccessToken, AuthorizationCode, RefreshToken, AbstractApplication
 from oauth_api.settings import oauth_api_settings
 
 
-Application = get_application_model()
-
-
 GRANT_TYPE_MAPPING = {
-    'authorization_code': (Application.GRANT_AUTHORIZATION_CODE,),
-    'password': (Application.GRANT_PASSWORD,),
-    'client_credentials': (Application.GRANT_CLIENT_CREDENTIALS,),
-    'refresh_token': (Application.GRANT_AUTHORIZATION_CODE, Application.GRANT_PASSWORD,
-                      Application.GRANT_CLIENT_CREDENTIALS)
+    'authorization_code': (AbstractApplication.GRANT_AUTHORIZATION_CODE,),
+    'password': (AbstractApplication.GRANT_PASSWORD,),
+    'client_credentials': (AbstractApplication.GRANT_CLIENT_CREDENTIALS,),
+    'refresh_token': (AbstractApplication.GRANT_AUTHORIZATION_CODE, AbstractApplication.GRANT_PASSWORD,
+                      AbstractApplication.GRANT_CLIENT_CREDENTIALS)
 }
 
+
 class OAuthValidator(RequestValidator):
+
+    def _get_application(self, client_id, request):
+        """
+        Load application instance for given client_id and store it in request as 'client' attribute
+        """
+        assert hasattr(request, 'client'), "'client' attribute missing from 'request'"
+
+        Application = get_application_model()
+
+        try:
+            request.client = request.client or Application.objects.get(client_id=client_id)
+            return request.client
+        except Application.DoesNotExist:
+            return None
 
     def _authenticate_client_basic(self, request):
         """
@@ -42,11 +54,12 @@ class OAuthValidator(RequestValidator):
         auth_string_decoded = base64.b64decode(auth_string).decode(encoding)
         client_id, client_secret = auth_string_decoded.split(':', 1)
 
-        try:
-            request.client = Application.objects.get(client_id=client_id, client_secret=client_secret)
-            return True
-        except Application.DoesNotExist:
+        if self._get_application(client_id, request) is None:
             return False
+        elif request.client.client_secret != client_secret:
+            return False
+        else:
+            return True
 
     def _authenticate_client_body(self, request):
         """
@@ -58,11 +71,12 @@ class OAuthValidator(RequestValidator):
         if not client_id:
             return False
 
-        try:
-            request.client = Application.objects.get(client_id=client_id, client_secret=client_secret)
-            return True
-        except Application.DoesNotExist:
+        if self._get_application(client_id, request) is None:
             return False
+        elif request.client.client_secret != client_secret:
+            return False
+        else:
+            return True
 
     def authenticate_client(self, request, *args, **kwargs):
         """
@@ -80,13 +94,9 @@ class OAuthValidator(RequestValidator):
         Ensure client_id belong to a non-confidential client.
         A non-confidential client is one that is not required to authenticate through other means, such as using HTTP Basic.
         """
-        client_secret = request.client_secret
-        try:
-            request.client = request.client or Application.objects.get(client_id=client_id,
-                                                                       client_secret=client_secret)
-            return request.client.client_type != Application.CLIENT_CONFIDENTIAL
-        except Application.DoesNotExist:
-            return False
+        if self._get_application(client_id, request) is not None:
+            return request.client.client_type != AbstractApplication.CLIENT_CONFIDENTIAL
+        return False
 
     def confirm_redirect_uri(self, client_id, code, redirect_uri, client, *args, **kwargs):
         """
@@ -195,11 +205,7 @@ class OAuthValidator(RequestValidator):
         """
         Check that and Application exists with given client_id.
         """
-        try:
-            request.client = request.client or Application.objects.get(client_id=client_id)
-            return True
-        except Application.DoesNotExist:
-            return False
+        return self._get_application(client_id, request) is not None
 
     def validate_code(self, client_id, code, client, request, *args, **kwargs):
         """
@@ -249,9 +255,9 @@ class OAuthValidator(RequestValidator):
         See http://tools.ietf.org/html/rfc6749#section-8.4
         """
         if response_type == 'code':
-            return client.authorization_grant_type == Application.GRANT_AUTHORIZATION_CODE
+            return client.authorization_grant_type == AbstractApplication.GRANT_AUTHORIZATION_CODE
         elif response_type == 'token':
-            return client.authorization_grant_type == Application.GRANT_IMPLICIT
+            return client.authorization_grant_type == AbstractApplication.GRANT_IMPLICIT
         else:
             return False
 
