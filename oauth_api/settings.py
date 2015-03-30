@@ -38,7 +38,9 @@ def perform_import(val, setting_name):
     Credits to Django Rest Framework project.
     http://django-rest-framework.org/
     """
-    if isinstance(val, six.string_types):
+    if val is None:
+        return None
+    elif isinstance(val, six.string_types):
         return import_from_string(val, setting_name)
     elif isinstance(val, (list, tuple)):
         return [import_from_string(item, setting_name) for item in val]
