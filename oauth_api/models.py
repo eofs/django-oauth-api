@@ -1,9 +1,9 @@
+from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models import get_model
 from django.conf import settings
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 
 from oauth_api.generators import generate_client_id, generate_client_secret
@@ -180,7 +180,7 @@ def get_application_model():
         app_label, model_name = oauth_api_settings.APPLICATION_MODEL.split('.')
     except ValueError:
         raise ImproperlyConfigured("APPLICATION_MODEL must be in the form of 'app_label.model_name'")
-    app_model = get_model(app_label, model_name)
+    app_model = apps.get_model(app_label, model_name)
     if app_model is None:
         raise ImproperlyConfigured("APPLICATION_MODEL refers to model that is not available.")
     return app_model
