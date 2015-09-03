@@ -118,7 +118,7 @@ class TestAuthorizationCode(BaseTest):
         response = self.client.get(reverse('oauth_api:authorize'), data=query_string)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertIn('error=unauthorized_client', response['Location'])
+        self.assertIn('error=unsupported_response_type', response['Location'])
 
     def test_missing_response_type(self):
         """
@@ -253,7 +253,8 @@ class TestAuthorizationCode(BaseTest):
         response = self.client.post(reverse('oauth_api:authorize'), data=form_data)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertIn('http://localhost?error=unauthorized_client', response['Location'])
+        self.assertIn('error=unsupported_response_type', response['Location'])
+        self.assertIn('state=random_state_string', response['Location'])
 
     def test_authorization_code_post_invalid_redirect_uri(self):
         """

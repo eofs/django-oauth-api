@@ -49,7 +49,10 @@ class OAuthValidator(RequestValidator):
         if not auth_type == 'Basic':
             return False
 
-        encoding = request.encoding or 'utf-8'
+        try:
+            encoding = request.encoding
+        except AttributeError:
+            encoding = 'utf-8'
 
         auth_string_decoded = base64.b64decode(auth_string).decode(encoding)
         client_id, client_secret = auth_string_decoded.split(':', 1)
@@ -65,8 +68,11 @@ class OAuthValidator(RequestValidator):
         """
         Try authenticating the client using values from request body
         """
-        client_id = request.client_id
-        client_secret = request.client_secret
+        try:
+            client_id = request.client_id
+            client_secret = request.client_secret
+        except AttributeError:
+            return False
 
         if not client_id:
             return False
@@ -145,7 +151,7 @@ class OAuthValidator(RequestValidator):
         """
         Persist the Bearer token.
         """
-        if request.refresh_token_object:
+        if request.refresh_token:
             # Remove used refresh token
             try:
                 RefreshToken.objects.get(token=request.refresh_token).delete()
@@ -194,7 +200,7 @@ class OAuthValidator(RequestValidator):
                 request.user = access_token.user
                 request.scopes = scopes
 
-                # Required when autenticating using OAuth2Authentication
+                # Required when authenticating using OAuth2Authentication
                 request.access_token = access_token
                 return True
             return False
@@ -242,6 +248,7 @@ class OAuthValidator(RequestValidator):
             rt = RefreshToken.objects.select_related('user').get(token=refresh_token)
             if not rt.is_expired:
                 request.user = rt.user
+                request.refresh_token = rt.token
                 request.refresh_token_object = rt
                 return rt.application == client
             return False
