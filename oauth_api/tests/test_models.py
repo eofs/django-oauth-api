@@ -40,6 +40,19 @@ class TestModels(TestCase):
         self.assertTrue(access_token.allow_scopes([]))
         self.assertFalse(access_token.allow_scopes(['read', 'invalid']))
 
+    def test_access_token_user_may_be_none(self):
+        app = Appliation.objects.create(
+            name='Test App',
+            redirect_uris='http://localhost http://example.com',
+            user=self.dev_user,
+            client_type=Appliation.CLIENT_CONFIDENTIAL,
+            authorization_grant_type=Appliation.GRANT_AUTHORIZATION_CODE,
+        )
+
+        access_token = AccessToken.objects.create(token='1234567890', application=app,
+                                                  expires=timezone.now())
+        self.assertIsNone(access_token.user)
+
     def test_default_redirect_uri(self):
         app = Appliation(
             name='Test App',

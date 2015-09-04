@@ -93,7 +93,7 @@ class AccessToken(models.Model):
     created = models.DateTimeField('created', auto_now_add=True)
     updated = models.DateTimeField('updated', auto_now=True)
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     token = models.CharField(max_length=255, db_index=True)
     application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL)
     expires = models.DateTimeField()

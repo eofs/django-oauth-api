@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from oauth_api.models import get_application_model
+from oauth_api.models import get_application_model, AccessToken
 from oauth_api.settings import oauth_api_settings
 from oauth_api.tests.views import RESPONSE_DATA
 from oauth_api.tests.utils import TestCaseUtils
@@ -80,6 +80,23 @@ class TestClientCredentials(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_client_credentials_should_not_assign_user(self):
+        """
+        Client Credentials grant shouldn't assign user to Access Token object
+        """
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+        data = {
+            'grant_type': 'client_credentials',
+        }
+        response = self.client.post(reverse('oauth_api:token'), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Client Credentials should not assign user to Access Tokens
+        access_token = AccessToken.objects.get(token=response.data['access_token'])
+        self.assertIsNone(access_token.user)
+
     def test_client_credentials_should_not_create_refresh_token(self):
         """
         Client Credentials grant should not create Refresh Tokens
@@ -115,7 +132,6 @@ class TestClientCredentialsResourceAccess(BaseTest):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer %s' % access_token)
 
         response = self.client.get(reverse('resource-view'))
-
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, RESPONSE_DATA)

@@ -212,11 +212,12 @@ class OAuthValidator(RequestValidator):
                 assert ()
 
         expires = timezone.now() + timedelta(seconds=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
+        user = request.user
         if request.grant_type == 'client_credentials':
-            request.user = request.client.user
+            user = None
 
         access_token = AccessToken(
-            user=request.user,
+            user=user,
             scope=token['scope'],
             expires=expires,
             token=token['access_token'],
