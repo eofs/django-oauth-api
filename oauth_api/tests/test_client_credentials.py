@@ -80,6 +80,20 @@ class TestClientCredentials(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_client_credentials_should_not_create_refresh_token(self):
+        """
+        Client Credentials grant should not create Refresh Tokens
+        """
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+        data = {
+            'grant_type': 'client_credentials',
+        }
+        response = self.client.post(reverse('oauth_api:token'), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('refresh_token', response.data)
+
 
 class TestClientCredentialsResourceAccess(BaseTest):
     def test_resource_access(self):
