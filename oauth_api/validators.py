@@ -1,4 +1,5 @@
 import base64
+import binascii
 
 from datetime import timedelta
 
@@ -36,17 +37,28 @@ class OAuthValidator(RequestValidator):
         except Application.DoesNotExist:
             return None
 
+    def _get_auth_string(self, request):
+        auth = request.headers.get('HTTP_AUTHORIZATION', None)
+
+        if not auth:
+            return None
+
+        splitted = auth.split(' ', 1)
+        if len(splitted) != 2:
+            return None
+
+        auth_type, auth_string = splitted
+        if auth_type != 'Basic':
+            return None
+
+        return auth_string
+
     def _authenticate_client_basic(self, request):
         """
         Try authenticating the client using HTTP Basic Authentication method
         """
-        auth = request.headers.get('HTTP_AUTHORIZATION', None)
-
-        if not auth:
-            return False
-
-        auth_type, auth_string = auth.split(' ')
-        if not auth_type == 'Basic':
+        auth_string = self._get_auth_string(request)
+        if not auth_string:
             return False
 
         try:
@@ -54,7 +66,16 @@ class OAuthValidator(RequestValidator):
         except AttributeError:
             encoding = 'utf-8'
 
-        auth_string_decoded = base64.b64decode(auth_string).decode(encoding)
+        try:
+            b64_decoded = base64.b64decode(auth_string)
+        except (TypeError, binascii.Error):
+            return False
+
+        try:
+            auth_string_decoded = b64_decoded.decode(encoding)
+        except UnicodeDecodeError:
+            return False
+
         client_id, client_secret = auth_string_decoded.split(':', 1)
 
         if self._get_application(client_id, request) is None:
@@ -83,6 +104,40 @@ class OAuthValidator(RequestValidator):
             return False
         else:
             return True
+
+    def client_authentication_required(self, request, *args, **kwargs):
+        """
+        Determine if client authentication is required for current request.
+
+        According to the rfc6749, client authentication is required in the following cases:
+            - Resource Owner Password Credentials Grant, when Client type is Confidential or when
+              Client was issued client credentials or whenever Client provided client
+              authentication, see `Section 4.3.2`_.
+            - Authorization Code Grant, when Client type is Confidential or when Client was issued
+              client credentials or whenever Client provided client authentication,
+              see `Section 4.1.3`_.
+            - Refresh Token Grant, when Client type is Confidential or when Client was issued
+              client credentials or whenever Client provided client authentication, see
+              `Section 6`_
+
+        :param request: oauthlib.common.Request
+        :return: True or False
+        """
+        if self._get_auth_string(request):
+            return True
+
+        try:
+            if request.client_id and request.client_secret:
+                return True
+        except AttributeError:
+            # Client id or secret not provided
+            pass
+
+        self._get_application(request.client_id, request)
+        if request.client:
+            return request.client.client_type == AbstractApplication.CLIENT_CONFIDENTIAL
+        
+        return super(OAuthValidator, self).client_authentication_required(request, *args, **kwargs)
 
     def authenticate_client(self, request, *args, **kwargs):
         """
