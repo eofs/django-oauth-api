@@ -21,3 +21,12 @@ Simplified BSD License
 
 ## Credits
 Big thank you for the people behind [evonove/django-oauth-toolkit](https://github.com/evonove/django-oauth-toolkit)! This project is a fork/heavily based on the work done by them.
+
+## Changes
+
+### 0.5.0 [2015-09-04]
+
+- Feature: Token revocation support added
+- Update: Updated to use latest oauthlib 1.0.3
+- Update: Do not assign user to Access Token if Client Credentials grant used
+- Bug: Using public apps with client_id only did not work
