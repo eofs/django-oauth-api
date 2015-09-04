@@ -207,11 +207,11 @@ class OAuthValidator(RequestValidator):
         Persist the Bearer token.
         """
         if request.refresh_token:
-            # Remove used refresh token
+            # Revoke Refresh Token (and related Access Token)
             try:
-                RefreshToken.objects.get(token=request.refresh_token).delete()
+                RefreshToken.objects.get(token=request.refresh_token).revoke()
             except RefreshToken.DoesNotExist:
-                # Already deleted?
+                # Already revoked?
                 assert()
 
         expires = timezone.now() + timedelta(seconds=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
@@ -240,6 +240,33 @@ class OAuthValidator(RequestValidator):
             refresh_token.save()
 
         return request.client.default_redirect_uri
+
+    def revoke_token(self, token, token_type_hint, request, *args, **kwargs):
+        """
+        Revoke an access or refresh token.
+
+        :param token: The token string.
+        :param token_type_hint: access_token or refresh_token.
+        :param request: The HTTP Request (oauthlib.common.Request)
+        """
+        if token_type_hint not in ['access_token', 'refresh_token']:
+            token_type_hint = None
+
+        token_types = {
+            'access_token': AccessToken,
+            'refresh_token': RefreshToken,
+        }
+
+        token_type = token_types.get(token_type_hint, AccessToken)
+
+        try:
+            token_type.objects.get(token=token).revoke()
+        except token_type.DoesNotExist:
+            # Lookup from all token types except from already looked up type
+            other_types = (_type for _type in token_types.values() if _type != token_type)
+            for other_type in other_types:
+                for token in other_type.objects.filter(token=token):
+                    token.revoke()
 
     def validate_bearer_token(self, token, scopes, request):
         """

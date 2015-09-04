@@ -86,6 +86,10 @@ class OAuthViewMixin(object):
         handler = self.get_request_handler()
         return handler.create_token_response(request)
 
+    def create_revocation_response(self, request):
+        handler = self.get_request_handler()
+        return handler.create_revocation_response(request)
+
     def validate_authorization_request(self, request):
         handler = self.get_request_handler()
         return handler.validate_authorization_request(request)

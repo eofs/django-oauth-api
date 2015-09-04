@@ -33,7 +33,6 @@ class AbstractApplication(models.Model):
         (GRANT_CLIENT_CREDENTIALS, _('Client credentials')),
     )
 
-
     created = models.DateTimeField('created', auto_now_add=True)
     updated = models.DateTimeField('updated', auto_now=True)
 
@@ -125,6 +124,10 @@ class AccessToken(models.Model):
         """
         return not self.is_expired and self.allow_scopes(scopes)
 
+    def revoke(self):
+        # Alias to make it easier for revocation endpoint to delete tokens
+        self.delete()
+
 
 class AuthorizationCode(models.Model):
     created = models.DateTimeField('created', auto_now_add=True)
@@ -170,6 +173,13 @@ class RefreshToken(models.Model):
         if self.expires is None:
             return False
         return timezone.now() >= self.expires
+
+    def revoke(self):
+        """
+        Revoke (delete) refresh token and related access token
+        """
+        self.access_token.delete()
+        self.delete()
 
 
 def get_application_model():

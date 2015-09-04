@@ -101,3 +101,13 @@ class TokenView(OAuthViewMixin, APIView):
         url, headers, body, status = self.create_token_response(request)
         data = json.loads(body)
         return Response(data=data, status=status, headers=headers)
+
+
+class TokenRevocationView(OAuthViewMixin, APIView):
+    authentication_classes = ()
+    permission_classes = ()
+    renderer_classes = (JSONRenderer, XMLRenderer)
+
+    def post(self, request, *args, **kwargs):
+        url, headers, body, status = self.create_revocation_response(request)
+        return Response(status=status, headers=headers)

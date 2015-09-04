@@ -54,6 +54,15 @@ class OAuthHandler(object):
         url = headers.get('Location', None)
         return url, headers, body, status
 
+    def create_revocation_response(self, request):
+        """
+        Wrapper method to call 'create_revocation_response' in OAuthLib
+        """
+        uri, method, body, headers = self.extract_params(request)
+        headers, body, status = self.server.create_revocation_response(uri, method, body, headers)
+        url = headers.get('Location', None)
+        return url, headers, body, status
+
     def validate_authorization_request(self, request):
         """
         Wrapper method to call `validate_authorization_request` in OAuthLib
