@@ -260,12 +260,12 @@ class OAuthValidator(RequestValidator):
         token_type = token_types.get(token_type_hint, AccessToken)
 
         try:
-            token_type.objects.get(token=token).revoke()
+            token_type.objects.get(token=token, application=request.client).revoke()
         except token_type.DoesNotExist:
             # Lookup from all token types except from already looked up type
             other_types = (_type for _type in token_types.values() if _type != token_type)
             for other_type in other_types:
-                for token in other_type.objects.filter(token=token):
+                for token in other_type.objects.filter(token=token, application=request.client):
                     token.revoke()
 
     def validate_bearer_token(self, token, scopes, request):

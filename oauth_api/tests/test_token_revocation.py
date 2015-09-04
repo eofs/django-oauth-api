@@ -39,10 +39,15 @@ class BaseTest(TestCaseUtils):
 class AccessTokenRevocationTest(BaseTest):
     def setUp(self):
         super(AccessTokenRevocationTest, self).setUp()
-        self.access_token = AccessToken.objects.create(user=self.test_user, token='1234567890',
+        self.access_token = AccessToken.objects.create(user=self.test_user, token='conf1234567890',
                                                        application=self.application,
                                                        expires=timezone.now() + timezone.timedelta(days=1),
                                                        scope='read write')
+
+        self.public_access_token = AccessToken.objects.create(user=self.test_user, token='pub1234567890',
+                                                              application=self.public_application,
+                                                              expires=timezone.now() + timezone.timedelta(days=1),
+                                                              scope='read write')
 
     def test_revoke_access_token(self):
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
@@ -57,11 +62,11 @@ class AccessTokenRevocationTest(BaseTest):
     def test_revoke_access_token_with_public_app(self):
         data = {
             'client_id': self.public_application.client_id,
-            'token': self.access_token.token,
+            'token': self.public_access_token.token,
         }
         response = self.client.post(reverse('oauth_api:revoke-token'), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(AccessToken.objects.filter(pk=self.access_token.pk).exists())
+        self.assertFalse(AccessToken.objects.filter(pk=self.public_access_token.pk).exists())
 
     def test_revoke_access_token_without_app(self):
         data = {
@@ -93,19 +98,48 @@ class AccessTokenRevocationTest(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(AccessToken.objects.filter(pk=self.access_token.pk).exists())
 
+    def test_revoke_access_token_with_mismatching_app(self):
+        """
+        Test token revocation using mismatching application
+        """
+        other_token = AccessToken.objects.create(user=self.test_user, token='1029384756',
+                                                 application=self.public_application,
+                                                 expires=timezone.now() + timezone.timedelta(days=1),
+                                                 scope='read write')
+
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+        data = {
+            'token': other_token.token,
+        }
+        response = self.client.post(reverse('oauth_api:revoke-token'), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(AccessToken.objects.filter(pk=other_token.pk).exists())
+        self.assertTrue(AccessToken.objects.filter(pk=self.access_token.pk).exists())
+
 
 class RefreshTokenRevocationTest(BaseTest):
     def setUp(self):
         super(RefreshTokenRevocationTest, self).setUp()
-        self.access_token = AccessToken.objects.create(user=self.test_user, token='1234567890',
+        self.access_token = AccessToken.objects.create(user=self.test_user, token='conf1234567890',
                                                        application=self.application,
                                                        expires=timezone.now() + timezone.timedelta(days=1),
                                                        scope='read write')
 
-        self.refresh_token = RefreshToken.objects.create(user=self.test_user, token='0987654321',
+        self.refresh_token = RefreshToken.objects.create(user=self.test_user, token='conf0987654321',
                                                          application=self.application,
                                                          access_token=self.access_token,
                                                          expires=timezone.now() + timezone.timedelta(days=3))
+
+        self.public_access_token = AccessToken.objects.create(user=self.test_user, token='pub1234567890',
+                                                              application=self.public_application,
+                                                              expires=timezone.now() + timezone.timedelta(days=1),
+                                                              scope='read write')
+
+        self.public_refresh_token = RefreshToken.objects.create(user=self.test_user, token='pub0987654321',
+                                                                application=self.public_application,
+                                                                access_token=self.public_access_token,
+                                                                expires=timezone.now() + timezone.timedelta(days=3))
 
     def test_revoke_refresh_token(self):
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
@@ -121,12 +155,12 @@ class RefreshTokenRevocationTest(BaseTest):
     def test_revoke_refresh_token_with_public_app(self):
         data = {
             'client_id': self.public_application.client_id,
-            'token': self.refresh_token.token,
+            'token': self.public_refresh_token.token,
         }
         response = self.client.post(reverse('oauth_api:revoke-token'), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(AccessToken.objects.filter(pk=self.access_token.pk).exists())
-        self.assertFalse(RefreshToken.objects.filter(pk=self.refresh_token.pk).exists())
+        self.assertFalse(AccessToken.objects.filter(pk=self.public_access_token.pk).exists())
+        self.assertFalse(RefreshToken.objects.filter(pk=self.public_refresh_token.pk).exists())
 
     def test_revoke_refresh_token_without_app(self):
         data = {
@@ -160,3 +194,30 @@ class RefreshTokenRevocationTest(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(AccessToken.objects.filter(pk=self.access_token.pk).exists())
         self.assertFalse(RefreshToken.objects.filter(pk=self.refresh_token.pk).exists())
+
+    def test_revoke_access_token_with_mismatching_app(self):
+        """
+        Test token revocation using mismatching application
+        """
+        other_access_token = AccessToken.objects.create(user=self.test_user, token='1029384756',
+                                                        application=self.public_application,
+                                                        expires=timezone.now() + timezone.timedelta(days=1),
+                                                        scope='read write')
+
+        other_refresh_token = RefreshToken.objects.create(user=self.test_user, token='1122334455',
+                                                          application=self.public_application,
+                                                          access_token=other_access_token,
+                                                          expires=timezone.now() + timezone.timedelta(days=3))
+
+        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
+                                                                       self.application.client_secret))
+        data = {
+            'token': other_refresh_token.token,
+            'token_type_hint': 'refresh_token',
+        }
+        response = self.client.post(reverse('oauth_api:revoke-token'), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(AccessToken.objects.filter(pk=other_access_token.pk).exists())
+        self.assertTrue(AccessToken.objects.filter(pk=self.access_token.pk).exists())
+        self.assertTrue(RefreshToken.objects.filter(pk=other_access_token.pk).exists())
+        self.assertTrue(RefreshToken.objects.filter(pk=self.refresh_token.pk).exists())
