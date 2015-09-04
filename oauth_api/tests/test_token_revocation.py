@@ -63,6 +63,14 @@ class AccessTokenRevocationTest(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(AccessToken.objects.filter(pk=self.access_token.pk).exists())
 
+    def test_revoke_access_token_without_app(self):
+        data = {
+            'token': self.access_token.token,
+        }
+        response = self.client.post(reverse('oauth_api:revoke-token'), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertTrue(AccessToken.objects.filter(pk=self.access_token.pk).exists())
+
     def test_revoke_access_token_with_hint(self):
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
                                                                        self.application.client_secret))
@@ -119,6 +127,15 @@ class RefreshTokenRevocationTest(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(AccessToken.objects.filter(pk=self.access_token.pk).exists())
         self.assertFalse(RefreshToken.objects.filter(pk=self.refresh_token.pk).exists())
+
+    def test_revoke_refresh_token_without_app(self):
+        data = {
+            'token': self.refresh_token.token,
+        }
+        response = self.client.post(reverse('oauth_api:revoke-token'), data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertTrue(AccessToken.objects.filter(pk=self.access_token.pk).exists())
+        self.assertTrue(RefreshToken.objects.filter(pk=self.refresh_token.pk).exists())
 
     def test_revoke_refresh_token_with_hint(self):
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
