@@ -59,7 +59,7 @@ class OAuthValidator(RequestValidator):
             return False
 
         try:
-            encoding = request.encoding
+            encoding = request.encoding or 'utf-8'
         except AttributeError:
             encoding = 'utf-8'
 
