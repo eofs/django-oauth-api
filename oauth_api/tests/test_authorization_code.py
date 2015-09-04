@@ -637,10 +637,8 @@ class TestAuthorizationCodeTokenView(BaseTest):
             'grant_type': 'authorization_code',
             'code': authorization_code,
             'redirect_uri': 'http://localhost',
+            'client_id': self.application_public.client_id,
         }
-
-        self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application_public.client_id,
-                                                                       self.application_public.client_secret))
 
         response = self.client.post(reverse('oauth_api:token'), token_request)
 
