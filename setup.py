@@ -42,7 +42,7 @@ setup(
     test_suite='runtests',
     install_requires=[
         'django>=1.7',
-        'oauthlib==0.6.0',
+        'oauthlib==1.0.3',
     ],
     zip_safe=False,
 )

@@ -11,5 +11,9 @@ local_settings.py
 # Unit tests
 .tox
 
+# Coverage
+.coverage
+htmlcov/
+
 # PyPi
 dist/
