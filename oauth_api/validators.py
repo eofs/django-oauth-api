@@ -1,6 +1,5 @@
 import base64
 import binascii
-
 from datetime import timedelta
 
 from django.contrib.auth import authenticate
@@ -10,7 +9,6 @@ from oauthlib.oauth2 import RequestValidator
 
 from oauth_api.models import get_application_model, AccessToken, AuthorizationCode, RefreshToken, AbstractApplication
 from oauth_api.settings import oauth_api_settings
-
 
 GRANT_TYPE_MAPPING = {
     'authorization_code': (AbstractApplication.GRANT_AUTHORIZATION_CODE,),
@@ -22,7 +20,6 @@ GRANT_TYPE_MAPPING = {
 
 
 class OAuthValidator(RequestValidator):
-
     def _get_application(self, client_id, request):
         """
         Load application instance for given client_id and store it in request as 'client' attribute
@@ -136,7 +133,7 @@ class OAuthValidator(RequestValidator):
         self._get_application(request.client_id, request)
         if request.client:
             return request.client.client_type == AbstractApplication.CLIENT_CONFIDENTIAL
-        
+
         return super(OAuthValidator, self).client_authentication_required(request, *args, **kwargs)
 
     def authenticate_client(self, request, *args, **kwargs):
@@ -197,8 +194,8 @@ class OAuthValidator(RequestValidator):
         """
         expires = timezone.now() + timedelta(seconds=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
         auth_code = AuthorizationCode(application=request.client, user=request.user, code=code['code'],
-                      expires=expires, redirect_uri=request.redirect_uri,
-                      scope=' '.join(request.scopes))
+                                      expires=expires, redirect_uri=request.redirect_uri,
+                                      scope=' '.join(request.scopes))
         auth_code.save()
         return request.redirect_uri
 
@@ -212,7 +209,7 @@ class OAuthValidator(RequestValidator):
                 RefreshToken.objects.get(token=request.refresh_token).revoke()
             except RefreshToken.DoesNotExist:
                 # Already revoked?
-                assert()
+                assert ()
 
         expires = timezone.now() + timedelta(seconds=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
         if request.grant_type == 'client_credentials':
@@ -313,7 +310,7 @@ class OAuthValidator(RequestValidator):
         """
         Ensure client is authorized to use the grant_type requested.
         """
-        assert(grant_type in GRANT_TYPE_MAPPING)
+        assert (grant_type in GRANT_TYPE_MAPPING)
         return request.client.authorization_grant_type in GRANT_TYPE_MAPPING[grant_type]
 
     def validate_redirect_uri(self, client_id, redirect_uri, request, *args, **kwargs):
