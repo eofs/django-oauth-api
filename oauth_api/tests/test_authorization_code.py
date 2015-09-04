@@ -647,6 +647,25 @@ class TestAuthorizationCodeTokenView(BaseTest):
         self.assertEqual(response.data['scope'], 'read write')
         self.assertEqual(response.data['expires_in'], oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
 
+    def test_public_with_invalid_redirect_uri(self):
+        """
+        Test for requesting access token using client_type 'public' and providing
+        invalid redirect_uri
+        """
+        self.client.login(username='test_user', password='1234')
+        authorization_code = self.get_authorization_code(self.application_public.client_id)
+
+        token_request = {
+            'grant_type': 'authorization_code',
+            'code': authorization_code,
+            'redirect_uri': '/../',
+            'client_id': self.application_public.client_id,
+        }
+
+        response = self.client.post(reverse('oauth_api:token'), token_request)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class TestAuthorizationCodeResourceAccess(BaseTest):
     def test_access_allowed(self):
