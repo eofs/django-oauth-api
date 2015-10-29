@@ -41,7 +41,7 @@ setup(
     include_package_data=True,
     test_suite='runtests',
     install_requires=[
-        'django>=1.8',
+        'django>=1.7',
         'oauthlib==1.0.3',
     ],
     zip_safe=False,
