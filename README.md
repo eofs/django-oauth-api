@@ -24,6 +24,10 @@ Big thank you for the people behind [evonove/django-oauth-toolkit](https://githu
 
 ## Changes
 
+### 0.5.1 [2016-02-17]
+
+- Update: Django 1.9 support added
+
 ### 0.5.0 [2015-09-04]
 
 - Feature: Token revocation support added
