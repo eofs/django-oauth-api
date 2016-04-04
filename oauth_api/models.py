@@ -95,7 +95,7 @@ class AccessToken(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     token = models.CharField(max_length=255, db_index=True)
-    application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL)
+    application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL, swappable=True)
     expires = models.DateTimeField()
     scope = models.TextField(blank=True)
 
@@ -135,7 +135,7 @@ class AuthorizationCode(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     code = models.CharField(max_length=255)
-    application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL)
+    application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL, swappable=True)
     expires = models.DateTimeField()
     redirect_uri = models.CharField(max_length=255)
     scope = models.TextField(blank=True)
@@ -161,7 +161,7 @@ class RefreshToken(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     token = models.CharField(max_length=255)
     expires = models.DateTimeField(null=True, blank=True)
-    application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL)
+    application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL, swappable=True)
     access_token = models.OneToOneField(AccessToken,
                                         related_name='refresh_token')
 
