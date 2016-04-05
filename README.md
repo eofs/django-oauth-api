@@ -24,6 +24,10 @@ Big thank you for the people behind [evonove/django-oauth-toolkit](https://githu
 
 ## Changes
 
+### 0.5.2 [2016-04-05]
+
+- Update: Application model is now swappable
+
 ### 0.5.1 [2016-02-17]
 
 - Update: Django 1.9 support added
