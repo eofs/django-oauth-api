@@ -209,7 +209,7 @@ class OAuthValidator(RequestValidator):
                 RefreshToken.objects.get(token=request.refresh_token).revoke()
             except RefreshToken.DoesNotExist:
                 # Already revoked?
-                assert ()
+                pass
 
         expires = timezone.now() + timedelta(seconds=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
         user = request.user
