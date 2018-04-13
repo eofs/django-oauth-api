@@ -11,6 +11,7 @@ class OAuthAPIError(Exception):
         if redirect_uri:
             self.oauthlib_error.redirect_uri = redirect_uri
 
+
 class FatalClientError(OAuthAPIError):
     """
     Critical error
