@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
 
 from oauthlib.oauth2 import (InvalidClientIdError, MissingClientIdError,
                              InvalidRedirectURIError, MismatchingRedirectURIError)
@@ -7,7 +6,7 @@ from oauthlib.oauth2 import (InvalidClientIdError, MissingClientIdError,
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from oauth_api.compat import urlparse, parse_qs
+from oauth_api.compat import urlparse, parse_qs, reverse
 from oauth_api.models import get_application_model
 from oauth_api.settings import oauth_api_settings
 from oauth_api.tests.views import RESPONSE_DATA
