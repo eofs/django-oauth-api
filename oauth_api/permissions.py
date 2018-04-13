@@ -22,7 +22,7 @@ class OAuth2ScopePermission(BasePermission):
 
             if scopes['required'] is not None:
                 is_valid = token.is_valid(scopes['required'])
-                if is_valid is False:
+                if not is_valid:
                     return False
             else:
                 # View did not define any required scopes
