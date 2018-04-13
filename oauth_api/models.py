@@ -1,5 +1,5 @@
 from django.apps import apps
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
@@ -56,12 +56,8 @@ class AbstractApplication(models.Model):
         abstract = True
 
     def clean(self):
-        from django.core.exceptions import ValidationError
-        if not self.redirect_uris and self.authorization_grant_type \
-            in (
-                AbstractApplication.GRANT_AUTHORIZATION_CODE,
-                AbstractApplication.GRANT_IMPLICIT,
-            ):
+        redirect_uris_required_for = (AbstractApplication.GRANT_AUTHORIZATION_CODE, AbstractApplication.GRANT_IMPLICIT)
+        if not self.redirect_uris and self.authorization_grant_type in redirect_uris_required_for:
             error = _('Redirect URIs required when {0} grant_type used')
             raise ValidationError(error.format(self.authorization_grant_type))
 
