@@ -11,7 +11,7 @@ $ pip install django-oauth-api
 ```
 
 ## Requirements
-- Python 2.7 or 3.4
+- Python 2.7 or 3.6
 - [Django](https://www.djangoproject.com/) 1.11 or later
 - [Django Rest Framework](http://django-rest-framework.org/) 3.8 or later
 - [OAuthLib](https://github.com/idan/oauthlib) 2.0.7
