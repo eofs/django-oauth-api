@@ -193,10 +193,14 @@ class OAuthValidator(RequestValidator):
         Persist the authorization_code.
         """
         expires = timezone.now() + timedelta(seconds=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
-        auth_code = AuthorizationCode(application=request.client, user=request.user, code=code['code'],
-                                      expires=expires, redirect_uri=request.redirect_uri,
-                                      scope=' '.join(request.scopes))
-        auth_code.save()
+        AuthorizationCode.objects.create(
+            application=request.client,
+            user=request.user,
+            code=code['code'],
+            expires=expires,
+            redirect_uri=request.redirect_uri,
+            scope=' '.join(request.scopes)
+        )
         return request.redirect_uri
 
     def save_bearer_token(self, token, request, *args, **kwargs):
@@ -209,33 +213,33 @@ class OAuthValidator(RequestValidator):
                 RefreshToken.objects.get(token=request.refresh_token).revoke()
             except RefreshToken.DoesNotExist:
                 # Already revoked?
-                assert ()
+                pass
 
         expires = timezone.now() + timedelta(seconds=oauth_api_settings.ACCESS_TOKEN_EXPIRATION)
         user = request.user
         if request.grant_type == 'client_credentials':
             user = None
 
-        access_token = AccessToken(
+        access_token = AccessToken.objects.create(
             user=user,
             scope=token['scope'],
             expires=expires,
             token=token['access_token'],
-            application=request.client)
-        access_token.save()
+            application=request.client
+        )
 
         if 'refresh_token' in token:
             if oauth_api_settings.REFRESH_TOKEN_EXPIRATION is not None:
                 expires = timezone.now() + timedelta(seconds=oauth_api_settings.REFRESH_TOKEN_EXPIRATION)
             else:
                 expires = None
-            refresh_token = RefreshToken(
+            RefreshToken.objects.create(
                 user=request.user,
                 token=token['refresh_token'],
                 expires=expires,
                 application=request.client,
-                access_token=access_token)
-            refresh_token.save()
+                access_token=access_token
+            )
 
         return request.client.default_redirect_uri
 

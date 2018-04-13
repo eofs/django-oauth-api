@@ -16,19 +16,19 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='authorizationcode',
             name='application',
-            field=models.ForeignKey(to=oauth_api_settings.APPLICATION_MODEL),
+            field=models.ForeignKey(to=oauth_api_settings.APPLICATION_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='refreshtoken',
             name='application',
-            field=models.ForeignKey(to=oauth_api_settings.APPLICATION_MODEL),
+            field=models.ForeignKey(to=oauth_api_settings.APPLICATION_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='accesstoken',
             name='application',
-            field=models.ForeignKey(to=oauth_api_settings.APPLICATION_MODEL),
+            field=models.ForeignKey(to=oauth_api_settings.APPLICATION_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

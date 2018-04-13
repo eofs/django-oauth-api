@@ -17,7 +17,6 @@ def get_version(package):
 version = get_version('oauth_api')
 
 
-
 setup(
     name="django-oauth-api",
     version=version,
@@ -29,10 +28,10 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords='django oauth oauth2 oauthlib',
+    keywords='django djangorestframework oauth oauth2 oauthlib',
     author='Tomi Pajunen',
     author_email='tomi@madlab.fi',
     url='https://github.com/eofs/django-oauth-api',
@@ -41,8 +40,8 @@ setup(
     include_package_data=True,
     test_suite='runtests',
     install_requires=[
-        'django>=1.7',
-        'oauthlib==1.1.2',
+        'django>=1.11',
+        'oauthlib==2.0.7',
     ],
     zip_safe=False,
 )

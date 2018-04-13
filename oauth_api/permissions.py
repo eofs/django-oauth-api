@@ -22,7 +22,7 @@ class OAuth2ScopePermission(BasePermission):
 
             if scopes['required'] is not None:
                 is_valid = token.is_valid(scopes['required'])
-                if is_valid == False:
+                if not is_valid:
                     return False
             else:
                 # View did not define any required scopes
@@ -48,7 +48,9 @@ class OAuth2ScopePermission(BasePermission):
         write = getattr(view, 'write_scopes', None)
 
         if not required and not read and not write:
-            raise ImproperlyConfigured('OAuth protected resources requires scopes. Please add required_scopes, read_scopes or write_scopes.')
+            raise ImproperlyConfigured(
+                'OAuth protected resources requires scopes. Please add required_scopes, read_scopes or write_scopes.'
+            )
 
         return {
             'required': required,
