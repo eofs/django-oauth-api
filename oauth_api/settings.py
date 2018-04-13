@@ -1,15 +1,13 @@
-import importlib
-
 from django.conf import settings
-from django.utils import six
+from rest_framework.settings import APISettings
 
-
-USER_SETTINGS = getattr(settings, 'OAUTH_API', None)
+APP_NAME = 'OAUTH_API'
+USER_SETTINGS = getattr(settings, APP_NAME, None)
 
 
 DEFAULTS = {
-    'ACCESS_TOKEN_EXPIRATION': 3600, # Seconds
-    'REFRESH_TOKEN_EXPIRATION': None, # Seconds, (None == disabled)
+    'ACCESS_TOKEN_EXPIRATION': 3600,  # Seconds
+    'REFRESH_TOKEN_EXPIRATION': None,  # Seconds, (None == disabled)
     'APPLICATION_MODEL': 'oauth_api.Application',
     'CLIENT_ID_GENERATOR': 'oauth_api.generators.ClientIdGenerator',
     'CLIENT_SECRET_GENERATOR': 'oauth_api.generators.ClientSecretGenerator',
@@ -32,59 +30,18 @@ IMPORT_STRINGS = (
 )
 
 
-def perform_import(val, setting_name):
-    """
-    If the given setting is a string import notation,
-    then perform the necessary import or imports.
-
-    Credits to Django Rest Framework project.
-    http://django-rest-framework.org/
-    """
-    if val is None:
-        return None
-    elif isinstance(val, six.string_types):
-        return import_from_string(val, setting_name)
-    elif isinstance(val, (list, tuple)):
-        return [import_from_string(item, setting_name) for item in val]
-    return val
-
-
-def import_from_string(val, setting_name):
-    """
-    Attempt to import a class from a string representation.
-    """
-    try:
-        # Nod to tastypie's use of importlib.
-        parts = val.split('.')
-        module_path, class_name = '.'.join(parts[:-1]), parts[-1]
-        module = importlib.import_module(module_path)
-        return getattr(module, class_name)
-    except ImportError as e:
-        msg = "Could not import '%s' for API setting '%s'. %s: %s." % (val, setting_name, e.__class__.__name__, e)
-        raise ImportError(msg)
-
-
-class OAuthApiSettings(object):
+class OAuthApiSettings(APISettings):
     def __init__(self, user_settings=None, defaults=None, import_strings=None):
-        self.user_settings = user_settings or {}
+        self._user_settings = user_settings or {}
         self.defaults = defaults or {}
         self.import_strings = import_strings or ()
+        self._cached_attrs = set()
 
-    def __getattr__(self, attr):
-        if attr not in self.defaults.keys():
-            raise AttributeError('Invalid setting: %s' % attr)
-
-        try:
-            val = self.user_settings[attr]
-        except KeyError:
-            val = self.defaults[attr]
-
-        if val and attr in self.import_strings:
-            val = perform_import(val, attr)
-
-        # Cache
-        setattr(self, attr, val)
-        return val
+    @property
+    def user_settings(self):
+        if not hasattr(self, '_user_settings'):
+            self._user_settings = getattr(settings, APP_NAME, {})
+        return self._user_settings
 
 
 oauth_api_settings = OAuthApiSettings(USER_SETTINGS, DEFAULTS, IMPORT_STRINGS)

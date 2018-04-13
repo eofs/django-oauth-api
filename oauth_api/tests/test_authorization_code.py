@@ -663,8 +663,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         }
 
         response = self.client.post(reverse('oauth_api:token'), token_request)
-
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class TestAuthorizationCodeResourceAccess(BaseTest):

@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('authorization_grant_type', models.CharField(max_length=32, choices=[(b'authorization-code', 'Authorization code'), (b'implicit', 'Implicit'), (b'password', 'Resource owner password-based'), (b'client-credentials', 'Client credentials')])),
                 ('client_secret', models.CharField(default=oauth_api.generators.generate_client_secret, max_length=255, blank=True)),
                 ('name', models.CharField(max_length=255, blank=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -57,8 +57,8 @@ class Migration(migrations.Migration):
                 ('expires', models.DateTimeField()),
                 ('redirect_uri', models.CharField(max_length=255)),
                 ('scope', models.TextField(blank=True)),
-                ('application', models.ForeignKey(to='oauth_api.Application')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('application', models.ForeignKey(to='oauth_api.Application', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -72,9 +72,9 @@ class Migration(migrations.Migration):
                 ('updated', models.DateTimeField(auto_now=True, verbose_name=b'updated')),
                 ('token', models.CharField(max_length=255)),
                 ('expires', models.DateTimeField(null=True, blank=True)),
-                ('access_token', models.OneToOneField(related_name='refresh_token', to='oauth_api.AccessToken')),
-                ('application', models.ForeignKey(to='oauth_api.Application')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('access_token', models.OneToOneField(related_name='refresh_token', to='oauth_api.AccessToken', on_delete=models.CASCADE)),
+                ('application', models.ForeignKey(to='oauth_api.Application', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -83,13 +83,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='accesstoken',
             name='application',
-            field=models.ForeignKey(to='oauth_api.Application'),
+            field=models.ForeignKey(to='oauth_api.Application', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='accesstoken',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

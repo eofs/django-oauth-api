@@ -92,6 +92,7 @@ class AuthorizationView(OAuthViewMixin, FormView):
             # Redirect resource owner
             return self.error_response(error)
 
+
 class TokenView(OAuthViewMixin, APIView):
     authentication_classes = ()
     permission_classes = ()
