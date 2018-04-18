@@ -6,7 +6,7 @@ from oauth_api.tests.views import (ResourceView, ResourceReadScopesView,
 
 
 urlpatterns = [
-    url(r'^oauth/', include(('oauth_api.urls', 'oauth_pi'), namespace='oauth_api')),
+    url(r'^oauth/', include(('oauth_api.urls', 'oauth_api'), namespace='oauth_api')),
     url(r'^resource-required/', ResourceView.as_view(), name='resource-view'),
     url(r'^resource-read/', ResourceReadScopesView.as_view(), name='resource-read-view'),
     url(r'^resource-write/', ResourceWriteScopesView.as_view(), name='resource-write-view'),
