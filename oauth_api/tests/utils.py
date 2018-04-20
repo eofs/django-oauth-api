@@ -1,11 +1,9 @@
 import base64
 
-from django.core.urlresolvers import reverse
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from oauth_api.compat import urlparse, parse_qs
+from oauth_api.compat import urlparse, parse_qs, reverse
 
 
 class TestCaseUtils(APITestCase):

@@ -1,8 +1,9 @@
 from django.apps import apps
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -11,6 +12,7 @@ from oauth_api.settings import oauth_api_settings
 from oauth_api.utils import validate_uris
 
 
+@python_2_unicode_compatible
 class AbstractApplication(models.Model):
     """
     This model represents Client on the Authorization server.
@@ -54,12 +56,8 @@ class AbstractApplication(models.Model):
         abstract = True
 
     def clean(self):
-        from django.core.exceptions import ValidationError
-        if not self.redirect_uris and self.authorization_grant_type \
-            in (
-                AbstractApplication.GRANT_AUTHORIZATION_CODE,
-                AbstractApplication.GRANT_IMPLICIT,
-            ):
+        redirect_uris_required_for = (AbstractApplication.GRANT_AUTHORIZATION_CODE, AbstractApplication.GRANT_IMPLICIT)
+        if not self.redirect_uris and self.authorization_grant_type in redirect_uris_required_for:
             error = _('Redirect URIs required when {0} grant_type used')
             raise ValidationError(error.format(self.authorization_grant_type))
 
@@ -78,7 +76,7 @@ class AbstractApplication(models.Model):
         """
         return redirect_uri in self.redirect_uris.split()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 

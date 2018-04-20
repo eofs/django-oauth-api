@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
 
 from django.utils import timezone
 
@@ -7,6 +6,7 @@ from rest_framework import status
 
 from rest_framework.test import APIRequestFactory
 
+from oauth_api.compat import reverse
 from oauth_api.models import get_application_model, AccessToken, RefreshToken
 from oauth_api.tests.utils import TestCaseUtils
 
@@ -221,5 +221,5 @@ class RefreshTokenRevocationTest(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(AccessToken.objects.filter(pk=other_access_token.pk).exists())
         self.assertTrue(AccessToken.objects.filter(pk=self.access_token.pk).exists())
-        self.assertTrue(RefreshToken.objects.filter(pk=other_access_token.pk).exists())
+        self.assertTrue(RefreshToken.objects.filter(pk=other_refresh_token.pk).exists())
         self.assertTrue(RefreshToken.objects.filter(pk=self.refresh_token.pk).exists())
