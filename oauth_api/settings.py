@@ -17,7 +17,7 @@ DEFAULTS = {
     'SCOPES': {
         'read': 'Read access',
         'write': 'Write access',
-    },
+    }
 }
 
 

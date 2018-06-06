@@ -93,22 +93,19 @@ class AuthorizationView(OAuthViewMixin, FormView):
             return self.error_response(error)
 
 
-class TokenView(OAuthViewMixin, APIView):
+class TokenBaseView(OAuthViewMixin, APIView):
     authentication_classes = ()
     permission_classes = ()
-    renderer_classes = (JSONRenderer, XMLRenderer)
 
+
+class TokenView(TokenBaseView):
     def post(self, request, *args, **kwargs):
         url, headers, body, status = self.create_token_response(request)
         data = json.loads(body)
         return Response(data=data, status=status, headers=headers)
 
 
-class TokenRevocationView(OAuthViewMixin, APIView):
-    authentication_classes = ()
-    permission_classes = ()
-    renderer_classes = (JSONRenderer, XMLRenderer)
-
+class TokenRevocationView(TokenBaseView):
     def post(self, request, *args, **kwargs):
         url, headers, body, status = self.create_revocation_response(request)
         return Response(status=status, headers=headers)
