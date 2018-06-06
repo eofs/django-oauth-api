@@ -24,6 +24,10 @@ Big thank you for the people behind [evonove/django-oauth-toolkit](https://githu
 
 ## Changes
 
+### 0.6.1 [2018-06-06]
+
+- Update: Allow overriding of API renderer and parser classes in the settings
+
 ### 0.6.0 [2018-04-13]
 
 - Update: Dropped support for Django <1.11
