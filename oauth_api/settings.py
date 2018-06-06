@@ -17,19 +17,7 @@ DEFAULTS = {
     'SCOPES': {
         'read': 'Read access',
         'write': 'Write access',
-    },
-
-    # Default parser and renderer classes that override DRF's settings
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework_xml.renderers.XMLRenderer',
-    ),
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser',
-        'rest_framework_xml.parsers.XMLParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser',
-    )
+    }
 }
 
 
@@ -39,8 +27,6 @@ IMPORT_STRINGS = (
     'DEFAULT_HANDLER_CLASS',
     'DEFAULT_SERVER_CLASS',
     'DEFAULT_VALIDATOR_CLASS',
-    'DEFAULT_RENDERER_CLASSES',
-    'DEFAULT_PARSER_CLASSES',
 )
 
 

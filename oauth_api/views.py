@@ -96,8 +96,6 @@ class AuthorizationView(OAuthViewMixin, FormView):
 class TokenBaseView(OAuthViewMixin, APIView):
     authentication_classes = ()
     permission_classes = ()
-    renderer_classes = oauth_api_settings.DEFAULT_RENDERER_CLASSES
-    parser_classes = oauth_api_settings.DEFAULT_PARSER_CLASSES
 
 
 class TokenView(TokenBaseView):
