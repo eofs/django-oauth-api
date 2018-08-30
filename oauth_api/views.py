@@ -5,9 +5,7 @@ from django.views.generic import FormView
 
 from rest_framework import status as http_status
 from rest_framework.views import APIView
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework_xml.renderers import XMLRenderer
 
 from oauth_api.forms import AuthorizationForm
 from oauth_api.mixins import OAuthViewMixin
