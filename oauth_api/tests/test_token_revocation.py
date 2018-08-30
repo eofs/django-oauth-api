@@ -15,41 +15,43 @@ User = get_user_model()
 
 
 class BaseTest(TestCaseUtils):
-    def setUp(self):
-        self.test_user = User.objects.create_user('test_user', 'test_user@example.com', '1234')
-        self.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
-        self.application = Application(
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_user = User.objects.create_user('test_user', 'test_user@example.com', '1234')
+        cls.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
+        cls.application = Application(
             name='Test Application',
             redirect_uris='http://localhost http://example.com',
-            user=self.dev_user,
+            user=cls.dev_user,
             client_type=Application.CLIENT_CONFIDENTIAL,
             authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
         )
-        self.application.save()
+        cls.application.save()
 
-        self.public_application = Application(
+        cls.public_application = Application(
             name='Public Test Application',
             redirect_uris='http://localhost http://example.com',
-            user=self.dev_user,
+            user=cls.dev_user,
             client_type=Application.CLIENT_PUBLIC,
             authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE)
-        self.public_application.save()
+        cls.public_application.save()
 
-        self.factory = APIRequestFactory()
+        cls.factory = APIRequestFactory()
 
 
 class AccessTokenRevocationTest(BaseTest):
-    def setUp(self):
-        super(AccessTokenRevocationTest, self).setUp()
-        self.access_token = AccessToken.objects.create(user=self.test_user, token='conf1234567890',
-                                                       application=self.application,
-                                                       expires=timezone.now() + timezone.timedelta(days=1),
-                                                       scope='read write')
+    @classmethod
+    def setUpTestData(cls):
+        super(AccessTokenRevocationTest, cls).setUpTestData()
+        cls.access_token = AccessToken.objects.create(user=cls.test_user, token='conf1234567890',
+                                                      application=cls.application,
+                                                      expires=timezone.now() + timezone.timedelta(days=1),
+                                                      scope='read write')
 
-        self.public_access_token = AccessToken.objects.create(user=self.test_user, token='pub1234567890',
-                                                              application=self.public_application,
-                                                              expires=timezone.now() + timezone.timedelta(days=1),
-                                                              scope='read write')
+        cls.public_access_token = AccessToken.objects.create(user=cls.test_user, token='pub1234567890',
+                                                             application=cls.public_application,
+                                                             expires=timezone.now() + timezone.timedelta(days=1),
+                                                             scope='read write')
 
     def test_revoke_access_token(self):
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,
@@ -121,27 +123,28 @@ class AccessTokenRevocationTest(BaseTest):
 
 
 class RefreshTokenRevocationTest(BaseTest):
-    def setUp(self):
-        super(RefreshTokenRevocationTest, self).setUp()
-        self.access_token = AccessToken.objects.create(user=self.test_user, token='conf1234567890',
-                                                       application=self.application,
-                                                       expires=timezone.now() + timezone.timedelta(days=1),
-                                                       scope='read write')
+    @classmethod
+    def setUpTestData(cls):
+        super(RefreshTokenRevocationTest, cls).setUpTestData()
+        cls.access_token = AccessToken.objects.create(user=cls.test_user, token='conf1234567890',
+                                                      application=cls.application,
+                                                      expires=timezone.now() + timezone.timedelta(days=1),
+                                                      scope='read write')
 
-        self.refresh_token = RefreshToken.objects.create(user=self.test_user, token='conf0987654321',
-                                                         application=self.application,
-                                                         access_token=self.access_token,
-                                                         expires=timezone.now() + timezone.timedelta(days=3))
+        cls.refresh_token = RefreshToken.objects.create(user=cls.test_user, token='conf0987654321',
+                                                        application=cls.application,
+                                                        access_token=cls.access_token,
+                                                        expires=timezone.now() + timezone.timedelta(days=3))
 
-        self.public_access_token = AccessToken.objects.create(user=self.test_user, token='pub1234567890',
-                                                              application=self.public_application,
-                                                              expires=timezone.now() + timezone.timedelta(days=1),
-                                                              scope='read write')
+        cls.public_access_token = AccessToken.objects.create(user=cls.test_user, token='pub1234567890',
+                                                             application=cls.public_application,
+                                                             expires=timezone.now() + timezone.timedelta(days=1),
+                                                             scope='read write')
 
-        self.public_refresh_token = RefreshToken.objects.create(user=self.test_user, token='pub0987654321',
-                                                                application=self.public_application,
-                                                                access_token=self.public_access_token,
-                                                                expires=timezone.now() + timezone.timedelta(days=3))
+        cls.public_refresh_token = RefreshToken.objects.create(user=cls.test_user, token='pub0987654321',
+                                                               application=cls.public_application,
+                                                               access_token=cls.public_access_token,
+                                                               expires=timezone.now() + timezone.timedelta(days=3))
 
     def test_revoke_refresh_token(self):
         self.client.credentials(HTTP_AUTHORIZATION=self.get_basic_auth(self.application.client_id,

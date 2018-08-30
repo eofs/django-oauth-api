@@ -11,8 +11,9 @@ User = get_user_model()
 
 
 class TestModels(TestCase):
-    def setUp(self):
-        self.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
+    @classmethod
+    def setUpTestData(cls):
+        cls.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
 
     def test_allow_scopes(self):
         app = Appliation.objects.create(
