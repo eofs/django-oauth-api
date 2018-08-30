@@ -24,6 +24,18 @@ Big thank you for the people behind [evonove/django-oauth-toolkit](https://githu
 
 ## Changes
 
+### 0.6.3 [2018-08-30]
+
+- Handle request with `None` body value when verifying requests.
+- Do not generate client ids with leading or trailing spaces as `AuthorizationView/FormView` strips them away and breaks the flow (and randomly tests too)
+- Removed Django 1.10 support
+- Added Django 2.1 support
+- Fixed Django (master branch) support
+
+### 0.6.2 [2018-08-21]
+
+- Specify `app_name` in `urls.py` to support namespacing in Django 2
+
 ### 0.6.1 [2018-06-06]
 
 - Update: Allow overriding of API renderer and parser classes in the settings
