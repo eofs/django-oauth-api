@@ -76,6 +76,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'django.contrib.messages',
     'rest_framework',
     'oauth_api',
 )
