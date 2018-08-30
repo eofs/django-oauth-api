@@ -19,7 +19,11 @@ class ClientIdGenerator(BaseGenerator):
         for Basic Authentication scheme.
         """
         client_id_charset = CLIENT_ID_CHARACTER_SET.replace(':', '')
-        return oauthlib_generate_client_id(length=64, chars=client_id_charset)
+        client_id = oauthlib_generate_client_id(length=64, chars=client_id_charset)
+        # Ignore IDs with leading/trailing spaces as AuthorizationView/FormView strips them away...
+        while len(client_id.strip()) < 64:
+            client_id = oauthlib_generate_client_id(length=64, chars=client_id_charset)
+        return client_id
 
 
 class ClientSecretGenerator(BaseGenerator):
