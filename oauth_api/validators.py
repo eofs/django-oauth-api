@@ -156,7 +156,7 @@ class OAuthValidator(RequestValidator):
             return request.client.client_type != AbstractApplication.CLIENT_CONFIDENTIAL
         return False
 
-    def confirm_redirect_uri(self, client_id, code, redirect_uri, client, *args, **kwargs):
+    def confirm_redirect_uri(self, client_id, code, redirect_uri, client, request, *args, **kwargs):
         """
         Ensure client is authorized to redirect to the redirect_uri requested.
         """
