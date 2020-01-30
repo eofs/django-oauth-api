@@ -27,10 +27,21 @@ Big thank you for the people behind [evonove/django-oauth-toolkit](https://githu
 ### 0.7.0
 
 - Update: Added support for Python 3.7 and 3.8
-- Update: Added support for Django 2.1, 2.2 and 3.0
+- Update: Added support for Django 2.2 and 3.0
 - Update: Dropped compatibility with Python 2.x, Django 1.11 and DRF <3.10
-- Update: Removed the space character from charset used to generate client ID and client secret values
 - Update: Removed `djangorestframework-xml` dependency as redundant
+
+### 0.6.3 [2018-08-30]
+
+- Handle request with `None` body value when verifying requests.
+- Do not generate client ids with leading or trailing spaces as `AuthorizationView/FormView` strips them away and breaks the flow (and randomly tests too)
+- Removed Django 1.10 support
+- Added Django 2.1 support
+- Fixed Django (master branch) support
+
+### 0.6.2 [2018-08-21]
+
+- Specify `app_name` in `urls.py` to support namespacing in Django 2
 
 ### 0.6.1 [2018-06-06]
 

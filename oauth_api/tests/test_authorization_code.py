@@ -20,26 +20,27 @@ User = get_user_model()
 
 
 class BaseTest(TestCaseUtils):
-    def setUp(self):
-        self.test_user = User.objects.create_user('test_user', 'test_user@example.com', '1234')
-        self.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
-        self.application = Application(
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_user = User.objects.create_user('test_user', 'test_user@example.com', '1234')
+        cls.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
+        cls.application = Application(
             name='Test Application',
             redirect_uris='http://localhost http://example.com',
-            user=self.dev_user,
+            user=cls.dev_user,
             client_type=Application.CLIENT_CONFIDENTIAL,
             authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
         )
-        self.application.save()
+        cls.application.save()
 
-        self.application_public = Application(
+        cls.application_public = Application(
             name='Test Application (Public)',
             redirect_uris='http://localhost http://example.com',
-            user=self.dev_user,
+            user=cls.dev_user,
             client_type=Application.CLIENT_PUBLIC,
             authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
         )
-        self.application_public.save()
+        cls.application_public.save()
 
 
 class TestAuthorizationCode(BaseTest):

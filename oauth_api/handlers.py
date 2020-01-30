@@ -84,6 +84,9 @@ class OAuthHandler(object):
         Wrapper method to call `verify_request` in OAuthLib
         """
         uri, method, data, headers = self.extract_params(request)
-        body = urlencode(data.items())
+        try:
+            body = urlencode(data.items())
+        except AttributeError:
+            body = None
         valid, r = self.server.verify_request(uri, method, body, headers, scopes=scopes)
         return valid, r

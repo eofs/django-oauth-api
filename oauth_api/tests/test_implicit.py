@@ -20,18 +20,19 @@ User = get_user_model()
 
 
 class BaseTest(TestCaseUtils, APITestCase):
-    def setUp(self):
-        self.test_user = User.objects.create_user('test_user', 'test_user@example.com', '1234')
-        self.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_user = User.objects.create_user('test_user', 'test_user@example.com', '1234')
+        cls.dev_user = User.objects.create_user('dev_user', 'dev_user@example.com', '1234')
 
-        self.application = Application(
+        cls.application = Application(
             name='Test Application',
             redirect_uris='http://localhost http://example.com',
-            user=self.dev_user,
+            user=cls.dev_user,
             client_type=Application.CLIENT_PUBLIC,
             authorization_grant_type=Application.GRANT_IMPLICIT,
         )
-        self.application.save()
+        cls.application.save()
 
     def parse_fragments(self, url):
         return parse_qs(urlparse(url).fragment)
