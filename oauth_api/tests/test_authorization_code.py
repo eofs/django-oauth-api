@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 from django.utils import timezone
 
 from oauthlib.oauth2 import (InvalidClientIdError, MissingClientIdError,
@@ -8,7 +9,6 @@ from oauthlib.oauth2 import (InvalidClientIdError, MissingClientIdError,
 
 from rest_framework import status
 
-from oauth_api.compat import reverse
 from oauth_api.models import get_application_model, AuthorizationCode, RefreshToken
 from oauth_api.settings import oauth_api_settings
 from oauth_api.tests.utils import TestCaseUtils

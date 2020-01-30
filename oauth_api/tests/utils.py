@@ -1,9 +1,9 @@
 import base64
+from urllib.parse import parse_qs, urlparse
 
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from oauth_api.compat import urlparse, parse_qs, reverse
 
 
 class TestCaseUtils(APITestCase):

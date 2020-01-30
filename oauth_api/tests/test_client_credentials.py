@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from oauth_api.compat import reverse
 from oauth_api.models import get_application_model, AccessToken
 from oauth_api.settings import oauth_api_settings
 from oauth_api.tests.views import RESPONSE_DATA
