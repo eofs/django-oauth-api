@@ -8,6 +8,10 @@
 *.pyc
 local_settings.py
 
+# IDEs
+.idea/
+.vscode/
+
 # Unit tests
 .tox
 
