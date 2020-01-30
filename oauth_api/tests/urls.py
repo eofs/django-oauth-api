@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.urls import include, path
 
 from oauth_api.tests.views import (ResourceView, ResourceReadScopesView,
                                    ResourceWriteScopesView, ResourceReadWriteScopesView,
@@ -6,11 +6,11 @@ from oauth_api.tests.views import (ResourceView, ResourceReadScopesView,
 
 
 urlpatterns = [
-    url(r'^oauth/', include(('oauth_api.urls', 'oauth_api'), namespace='oauth_api')),
-    url(r'^resource-required/', ResourceView.as_view(), name='resource-view'),
-    url(r'^resource-read/', ResourceReadScopesView.as_view(), name='resource-read-view'),
-    url(r'^resource-write/', ResourceWriteScopesView.as_view(), name='resource-write-view'),
-    url(r'^resource-readwrite/', ResourceReadWriteScopesView.as_view(), name='resource-readwrite-view'),
-    url(r'^resource-mixed/', ResourceMixedScopesView.as_view(), name='resource-mixed-view'),
-    url(r'^resource-noscopes/', ResourceNoScopesView.as_view(), name='resource-noscopes-view'),
+    path('oauth/', include(('oauth_api.urls', 'oauth_api'), namespace='oauth_api')),
+    path('resource-required/', ResourceView.as_view(), name='resource-view'),
+    path('resource-read/', ResourceReadScopesView.as_view(), name='resource-read-view'),
+    path('resource-write/', ResourceWriteScopesView.as_view(), name='resource-write-view'),
+    path('resource-readwrite/', ResourceReadWriteScopesView.as_view(), name='resource-readwrite-view'),
+    path('resource-mixed/', ResourceMixedScopesView.as_view(), name='resource-mixed-view'),
+    path('resource-noscopes/', ResourceNoScopesView.as_view(), name='resource-noscopes-view'),
 ]

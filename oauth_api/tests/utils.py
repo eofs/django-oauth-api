@@ -1,16 +1,16 @@
 import base64
+from urllib.parse import parse_qs, urlparse
 
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from oauth_api.compat import urlparse, parse_qs, reverse
 
 
 class TestCaseUtils(APITestCase):
     def get_basic_auth(self, username, password):
-            payload = '%s:%s' % (username, password)
-            auth = base64.b64encode(payload.encode('utf-8')).decode('utf-8')
-            return 'Basic {0}'.format(auth)
+        payload = '%s:%s' % (username, password)
+        auth = base64.b64encode(payload.encode('utf-8')).decode('utf-8')
+        return 'Basic {0}'.format(auth)
 
     def get_authorization_code(self, client_id=None, scopes=None, redirect_uri=None, allow=True, state=None):
         """

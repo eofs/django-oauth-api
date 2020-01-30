@@ -3,7 +3,6 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -12,7 +11,6 @@ from oauth_api.settings import oauth_api_settings
 from oauth_api.utils import validate_uris
 
 
-@python_2_unicode_compatible
 class AbstractApplication(models.Model):
     """
     This model represents Client on the Authorization server.
