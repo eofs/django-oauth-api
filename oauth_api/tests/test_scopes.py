@@ -1,10 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
+from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
-from oauth_api.compat import reverse
 from oauth_api.models import get_application_model, AuthorizationCode, AccessToken
 from oauth_api.tests.utils import TestCaseUtils
 from oauth_api.tests.views import RESPONSE_DATA, ResourceNoScopesView
