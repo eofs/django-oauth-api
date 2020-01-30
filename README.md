@@ -11,9 +11,9 @@ $ pip install django-oauth-api
 ```
 
 ## Requirements
-- Python 2.7 or 3.6
-- [Django](https://www.djangoproject.com/) 1.11 or later
-- [Django Rest Framework](http://django-rest-framework.org/) 3.8 or later
+- Python 3.6, 3.7 or 3.8
+- [Django](https://www.djangoproject.com/) 2.0 or later
+- [Django Rest Framework](http://django-rest-framework.org/) 3.10 or later
 - [OAuthLib](https://github.com/idan/oauthlib) 2.0.7
 
 ## License
@@ -23,6 +23,14 @@ Simplified BSD License
 Big thank you for the people behind [evonove/django-oauth-toolkit](https://github.com/evonove/django-oauth-toolkit)! This project is a fork/heavily based on the work done by them.
 
 ## Changes
+
+### 0.7.0
+
+- Update: Added support for Python 3.7 and 3.8
+- Update: Added support for Django 2.1, 2.2 and 3.0
+- Update: Dropped compatibility with Python 2.x, Django 1.11 and DRF <3.10
+- Update: Removed the space character from charset used to generate client ID and client secret values
+- Update: Removed `djangorestframework-xml` dependency as redundant
 
 ### 0.6.1 [2018-06-06]
 
