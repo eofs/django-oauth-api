@@ -24,6 +24,14 @@ Big thank you for the people behind [evonove/django-oauth-toolkit](https://githu
 
 ## Changes
 
+### 0.8.2 [2022-03-22]
+
+### Update
+- `setup.py` now provides long description
+
+### Fixed
+- `setup.py` contained incorrect classifier
+
 ### 0.8.1 [2022-03-22]
 
 ### Updated
