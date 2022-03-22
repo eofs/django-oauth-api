@@ -17,10 +17,16 @@ def get_version(package):
 version = get_version('oauth_api')
 
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+
 setup(
     name="django-oauth-api",
     version=version,
     description="OAuth API for Django using Django Rest Framework",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
