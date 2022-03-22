@@ -46,9 +46,8 @@ setup(
     include_package_data=True,
     test_suite='runtests',
     install_requires=[
-        'django>=2.0',
-        'djangorestframework>=3.10',
-        'oauthlib==2.0.7',
+        'djangorestframework>=3.13',
+        'oauthlib==2.1.0',
     ],
     zip_safe=False,
 )

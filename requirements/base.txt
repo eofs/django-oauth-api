@@ -1,2 +1,2 @@
-djangorestframework>=3.10.0
+djangorestframework>=3.13
 oauthlib==2.1.0
