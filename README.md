@@ -24,6 +24,11 @@ Big thank you for the people behind [evonove/django-oauth-toolkit](https://githu
 
 ## Changes
 
+### 0.8.1 [2022-03-22]
+
+### Updated
+- `setup.py` cleanup
+
 ### 0.8.0 [2022-03-22]
 
 ### Added
