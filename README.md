@@ -24,6 +24,9 @@ Big thank you for the people behind [evonove/django-oauth-toolkit](https://githu
 
 ## Changes
 
+### Added
+- GitHub Actions integrated
+
 ### 0.8.2 [2022-03-22]
 
 ### Update
