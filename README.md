@@ -1,7 +1,7 @@
 Django OAuth API
 ================
 
-[![Build Status](https://travis-ci.org/eofs/django-oauth-api.png?branch=master)](https://travis-ci.org/eofs/django-oauth-api)
+[![CI](https://github.com/eofs/django-oauth-api/actions/workflows/main.yml/badge.svg)](https://github.com/eofs/django-oauth-api/actions/workflows/main.yml)
 
 This package provides OAuth API using Django Rest Framework
 
