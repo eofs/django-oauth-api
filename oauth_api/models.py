@@ -90,7 +90,7 @@ class AccessToken(models.Model):
     updated = models.DateTimeField('updated', auto_now=True)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
-    token = models.CharField(max_length=255, db_index=True)
+    token = models.TextField(db_index=True)
     application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL, on_delete=models.CASCADE, swappable=True)
     expires = models.DateTimeField()
     scope = models.TextField(blank=True)
@@ -130,7 +130,7 @@ class AuthorizationCode(models.Model):
     updated = models.DateTimeField('updated', auto_now=True)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    code = models.CharField(max_length=255)
+    code = models.TextField(db_index=True)
     application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL, on_delete=models.CASCADE, swappable=True)
     expires = models.DateTimeField()
     redirect_uri = models.CharField(max_length=255)
@@ -155,7 +155,7 @@ class RefreshToken(models.Model):
     updated = models.DateTimeField('updated', auto_now=True)
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    token = models.CharField(max_length=255)
+    token = models.TextField(db_index=True)
     expires = models.DateTimeField(null=True, blank=True)
     application = models.ForeignKey(oauth_api_settings.APPLICATION_MODEL, on_delete=models.CASCADE, swappable=True)
     access_token = models.OneToOneField(AccessToken, on_delete=models.CASCADE, related_name='refresh_token')
