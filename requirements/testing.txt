@@ -1,4 +1,4 @@
 -r base.txt
 coverage
-tox
+tox<4.0
 tox-py
