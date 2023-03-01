@@ -79,7 +79,7 @@ class TestClientCredentials(BaseTest):
         }
         response = self.client.post(reverse('oauth_api:token'), data)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_client_credentials_should_not_assign_user(self):
         """

@@ -72,7 +72,7 @@ class TestResourceOwnerTokenView(BaseTest):
             'client_secret': self.application.client_secret,
         }
         response = self.client.post(reverse('oauth_api:token'), data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_invalid_client(self):
         """
@@ -139,7 +139,7 @@ class TestResourceOwnerTokenView(BaseTest):
         }
         response = self.client.post(reverse('oauth_api:token'), data)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class TestResourceOwnerResourceAccess(BaseTest):

@@ -338,7 +338,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
 
         response = self.client.post(reverse('oauth_api:token'), token_request)
 
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_invalid_grant_type(self):
         """
@@ -379,7 +379,8 @@ class TestAuthorizationCodeTokenView(BaseTest):
                                                                        self.application.client_secret))
 
         response = self.client.post(reverse('oauth_api:token'), token_request)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_refresh_token(self):
         """
@@ -427,7 +428,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
 
         # Refresh tokens cannot be used twice
         response = self.client.post(reverse('oauth_api:token'), token_request)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertTrue('invalid_grant' in response.data.values())
 
     def test_refresh_token_override_authorization(self):
@@ -464,7 +465,6 @@ class TestAuthorizationCodeTokenView(BaseTest):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('access_token' in response.data)
-
 
     def test_refresh_token_default_scopes(self):
         """
@@ -525,8 +525,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         }
 
         response = self.client.post(reverse('oauth_api:token'), token_request)
-
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_refresh_token_repeating_request_fail(self):
         """
@@ -559,7 +558,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.client.post(reverse('oauth_api:token'), token_request)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_refresh_token_expired(self):
         """
@@ -592,7 +591,7 @@ class TestAuthorizationCodeTokenView(BaseTest):
         RefreshToken.objects.update(expires=timezone.now())
 
         response = self.client.post(reverse('oauth_api:token'), token_request)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_refresh_token_not_expired(self):
         """

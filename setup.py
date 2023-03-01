@@ -39,6 +39,7 @@ setup(
         "Framework :: Django",
         "Framework :: Django :: 3.2",
         "Framework :: Django :: 4.0",
+        "Framework :: Django :: 4.1",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords='django djangorestframework oauth oauth2 oauthlib',
@@ -51,7 +52,7 @@ setup(
     include_package_data=True,
     test_suite='runtests',
     install_requires=[
-        'djangorestframework>=3.13',
-        'oauthlib==2.1.0',
+        'djangorestframework>=3.14.0',
+        'oauthlib==3.2.2',
     ]
 )

@@ -13,8 +13,8 @@ $ pip install django-oauth-api
 ## Requirements
 - Python 3.8, 3.9 or 3.10
 - [Django](https://www.djangoproject.com/) 3.2 or later
-- [Django Rest Framework](http://django-rest-framework.org/) 3.13 or later
-- [OAuthLib](https://github.com/idan/oauthlib) 2.1.0
+- [Django Rest Framework](http://django-rest-framework.org/) 3.14 or later
+- [OAuthLib](https://github.com/idan/oauthlib) 3.2.2
 
 ## License
 Simplified BSD License
@@ -23,6 +23,18 @@ Simplified BSD License
 Big thank you for the people behind [evonove/django-oauth-toolkit](https://github.com/evonove/django-oauth-toolkit)! This project is a fork/heavily based on the work done by them.
 
 ## Changes
+
+### 0.9.0 [2023-03-01]
+
+### Added
+- Support Django 4.1
+
+### Updated
+- POSSIBLY BREAKING: Updated oauthlib to 3.2.2
+  - This causes certain operations to return HTTP 400 instead of 401, check https://github.com/oauthlib/oauthlib/blob/master/CHANGELOG.rst#300-2019-01-01
+- Updated DRF minimum version to 3.14.0 (earlier versions also should continue to work)
+- Indexed RefreshToken model `token` field
+- Changed field type of `code` in AuthorizationCode and `token` in AccessToken and RefreshToken models to be TextField, removing the 255 character limitation
 
 ### 0.8.3 [2022-04-04]
 
