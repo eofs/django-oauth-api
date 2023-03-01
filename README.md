@@ -24,6 +24,18 @@ Big thank you for the people behind [evonove/django-oauth-toolkit](https://githu
 
 ## Changes
 
+### 0.9.0 [2023-03-01]
+
+### Added
+- Support Django 4.1
+
+### Updated
+- POSSIBLY BREAKING: Updated oauthlib to 3.2.2
+  - This causes certain operations to return HTTP 400 instead of 401, check https://github.com/oauthlib/oauthlib/blob/master/CHANGELOG.rst#300-2019-01-01
+- Updated DRF minimum version to 3.14.0 (earlier versions also should continue to work)
+- Indexed RefreshToken model `token` field
+- Changed field type of `code` in AuthorizationCode and `token` in AccessToken and RefreshToken models to be TextField, removing the 255 character limitation
+
 ### 0.8.3 [2022-04-04]
 
 ### Added
