@@ -10,6 +10,7 @@ sudo: false
 env:
   - DJANGO=3.2
   - DJANGO=4.0
+  - DJANGO=4.1
   - DJANGO=master
 
 matrix:
@@ -18,14 +19,17 @@ matrix:
   include:
     - { python: "3.8", env: DJANGO=3.2 }
     - { python: "3.8", env: DJANGO=4.0 }
+    - { python: "3.8", env: DJANGO=4.1 }
     - { python: "3.8", env: DJANGO=master }
 
     - { python: "3.9", env: DJANGO=3.2 }
     - { python: "3.9", env: DJANGO=4.0 }
+    - { python: "3.9", env: DJANGO=4.1 }
     - { python: "3.9", env: DJANGO=master }
 
     - { python: "3.10", env: DJANGO=3.2 }
     - { python: "3.10", env: DJANGO=4.0 }
+    - { python: "3.10", env: DJANGO=4.1 }
     - { python: "3.10", env: DJANGO=master }
   allow_failures:
     - env: DJANGO=master
