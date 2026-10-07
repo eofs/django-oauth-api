@@ -53,6 +53,6 @@ setup(
     test_suite='runtests',
     install_requires=[
         'djangorestframework>=3.14.0',
-        'oauthlib==3.2.2',
+        'oauthlib==4.0.0',
     ]
 )
